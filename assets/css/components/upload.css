@@ -1,0 +1,34 @@
+.upload{
+    border: 2px dashed #d1d5db;
+    padding: 24px;
+    text-align: center;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: background 0.2s, border-color 0.2s;
+}
+
+.upload:hover{
+    background: #f9fafb;
+    border-color: #63c5da;
+}
+
+.upload__icon{
+    font-size: 32px;
+    color: #6b7280;
+    margin-bottom: 6px;
+}
+
+.upload__text{
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.upload__hint{
+    font-size: 11px;
+    color: #6b7280;
+}
+
+.upload__input{
+    display: none;
+}

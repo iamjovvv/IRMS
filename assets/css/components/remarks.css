@@ -1,0 +1,56 @@
+.remarks-card{
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 30px;
+    background: #fafafa;
+    border: 1px solid #d1d5db;
+    
+}
+
+.remarks-send{
+    border: 1px solid #e5e7eb;
+    padding: 16x;
+    position: relative;
+}
+
+.remarks-send__input{
+    width: 100%;
+    min-height: 80px;
+    border: none;
+    resize: none;
+    font-size: 14px;
+}
+
+.remarks-send__btn{
+    padding: 8px;
+    position: absolute;
+    right: 16px;
+    bottom: 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 600;
+    background: #63C5DA;
+    color: #fff;
+}
+
+.remarks-message{
+    border: 1px solid #e5e7eb;
+    padding: 16px;
+    background: #fff;
+    margin-bottom: 24px;
+}   
+
+.remarks-message__header{
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.remarks-message__text{
+    font-size: 14px;
+}
+
+

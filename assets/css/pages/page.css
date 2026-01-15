@@ -1,0 +1,129 @@
+.page{
+    min-height: 100vh; 
+    padding: 40px 20px;
+  
+
+    /* margin-left: 240px;
+    transition: margin-left 0.25s ease;    */
+   
+}
+
+.sidebar--hidden ~ .page{
+    margin-left: 0;
+}
+
+
+
+.page--gray{
+    background: #f3f4f6;
+}
+
+.page__header{
+   
+    margin-bottom: 40px;
+}
+
+.page__container{
+    width: 800px;
+    margin: 0 auto;
+    background: #ffffff;
+    border-radius: 8px;
+    padding: 24px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.8);
+    overflow-x: auto;
+}
+
+.page__container-reports{
+    width: 100%;
+}
+
+.page__title{
+    font-size: 28px;
+    font-weight: 800;
+    padding: 0 50px;
+    margin: 10px;
+    
+}
+
+.page-assessment{
+    background-color: #f5f6f8;
+    padding: 24px;
+}
+
+
+.page-reports{
+    display: flex;
+    justify-content: center;
+    padding: 2rem;
+}
+
+.page-report__chart{
+    height: 260px;
+    width: 100%;
+    min-width: 500px;
+    margin: 0 auto 1.5rem;
+    background: #f6f6f6;
+    border-radius: 10px;
+    margin-bottom: 1.5rem;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+}
+
+.page-report__subtitle{
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 1.5rem;
+}
+
+.page-report__summary{
+    text-align: center;
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+    
+}
+
+.page-report__label{
+    border-bottom: 1px solid #000;
+    
+}
+
+.page-report__status{
+    list-style: none;
+    padding: 0;
+    margin-top: 1.5rem;
+    text-align: left;
+}
+
+.page-report__status li{
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #eee;
+}
+
+.page-report__count{
+    font-size: 2.5rem;
+    font-weight: 700;
+    display: block;
+}
+
+@media (max-width: 640px){
+    .page{
+        padding: 20px 16px;
+    }
+
+    .page__header{
+        margin-bottom: 24px;
+    }
+
+    .page__title{
+        font-size: 22px;
+    }
+    .page__container{
+        width: 100%;
+    }
+}

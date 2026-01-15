@@ -1,0 +1,92 @@
+.stepper
+{
+    position: fixed;
+    bottom: 0;
+    left: 240px;
+    right: 0;
+
+    
+
+    display: flex;
+    gap: 12px;
+
+
+    /* align-items: center;
+    justify-content: center; */
+
+    padding: 3px 8px;
+    background: #fff;
+
+
+    border-top: 1px solid #ddd;
+    box-shadow: 0 -2px 8px rgba(0,0,0,0.08);
+    z-index: 999;
+
+    transition: left 0.25s ease;
+}
+
+
+.step
+{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 80px;
+}
+
+
+.circle
+{
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    background: #e0e0e0;
+    color: #777;
+}
+
+.label
+{
+    margin-top: 6px;
+    font-size: 12px;
+    color: #777;
+    text-align: center;
+}
+
+.line
+{
+    flex: 1;
+    height: 4px;
+    background: #e0e0e0;
+    margin: 0 8px;
+}
+
+.step.active .circle
+{
+    background: #6f42c1;
+    color: #fff;
+}
+
+.step.completed .circle{
+    background: #6f42c1;
+    color: #fff;
+
+}
+
+.step.active .label,
+.step.completed .label
+{
+    color: #6f42c1;
+}
+
+.line.filled
+{
+    background: #6f42c1;
+}

@@ -1,0 +1,41 @@
+.btn, 
+.landing-btn
+{
+    width: 100%;
+    padding: 10px;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    border-radius: 4px;
+    text-decoration: none;
+    margin-bottom: 15px;
+   
+}
+
+
+.btn--primary{
+    background-color: #63C5DA;
+    text-decoration: none;
+    color: #fff;
+
+    
+}
+
+.btn--primary:hover{
+    opacity: 0.9;
+}
+
+.btn__action{
+    padding: 5px 10px;
+    border-radius: 8px;
+    
+    
+}
+
+.btn__action--add{
+    background: #e5e7eb;
+}
+
+.btn__action--export{
+    background: #63C5DA;
+}

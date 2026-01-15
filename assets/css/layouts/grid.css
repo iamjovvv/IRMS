@@ -1,0 +1,33 @@
+.grid{
+    width: 100%;
+    box-sizing: border-box;
+    display: grid;
+    gap: 30px;
+    max-width: 1200px;
+    margin-left: 0;
+}
+
+.grid--summary{
+    grid-template-columns: repeat(2, minmax(260px, 1fr));
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+*,
+*::before,
+*::after{
+    box-sizing: border-box;
+}
+
+@media(max-width: 640px){
+    .grid--summary{
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+}
+
+@media (min-width: 641px){
+    .grid--summary{
+        grid-template-columns: repeat(2, 1fr);
+    }
+} 

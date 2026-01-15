@@ -1,0 +1,31 @@
+.status-badge
+{
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-size: 600;
+}
+
+.status--review 
+{
+    background: #7f8c8d;
+    color: #fff;
+}
+
+.status--underReview
+{
+    background: #f1c40f;
+    color: #000;
+}
+
+.status--ongoing
+{
+    background: #e67e22;
+    color: #fff;
+}
+
+.status--resolved
+{
+    background: #2980b9;
+    color: #fff;
+}

@@ -1,0 +1,92 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.landing{
+    display: flex;
+   justify-content: space-around;
+    align-items: center;
+    min-height: calc(100vh - 70px);
+    padding: 60px 50px;
+    background-color: #f9f9f9;
+} 
+
+
+/* LEFT SECTION */
+
+.landing__intro{
+    max-width: 50%;
+}
+
+.landing__title{
+    font-size: 70px;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.landing__subtitle{
+    font-size: 22px;
+    font-weight: 400;
+    margin-bottom: 20px;
+    padding: 20px 0;
+}
+
+.landing__tagline{
+    font-size: 14px;
+    color: #444;
+    margin-bottom: 60px;
+    
+}
+
+
+
+/* RIGHT SECTION */
+
+.landing__action{
+    width: 50%;
+    display: flex;
+    justify-content: center;
+}
+
+.landing__card{
+    background-color: #9edce5;
+    width: 420px;
+    height: 300px;
+    padding: 50px 40px;
+    border-radius: 6px;
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+}
+
+.landing__question{
+    padding: 35px 0;
+    font-size: 24px;
+}
+
+
+/* BUTTONS */
+.landing__btn{
+    display: block;
+    width: 100%;
+    padding: 15px 30px;
+    margin-bottom: 15px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.landing__btn--primary,
+.landing__btn--secondary{
+    background-color: #3f565b;
+    color: white;
+}
+
+.landing__btn:hover{
+    background-color: #68a2e9;
+}

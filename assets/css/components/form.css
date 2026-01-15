@@ -1,0 +1,240 @@
+.form{
+    width: 100%;
+    max-width: 900px;
+    background: #fbfbfb;
+    border: 1px solid #ddd;
+    padding: 32px 40px;
+    border-radius: 8px;
+    gap: 10px;
+    
+}
+
+.form__control{
+    min-height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: 1px solid #d1d4db;
+    border-radius: 6px;
+    background: #fff;
+}
+
+.form__control--upload .upload{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+}
+
+
+.form__control--radio{
+    align-items: center;
+}
+
+.form__radio{
+    font-size: 14px;
+}
+
+.form__radio-group{
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    margin-top: 8px;
+    
+}
+
+.form__field{
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-bottom: 16px;
+    
+
+}
+
+
+
+.form__title{
+    text-align: center;
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.form__subtitle{
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.form__title--start
+{
+    text-align: start;
+}
+
+
+.form__label{
+    font-size: 13px;
+    font-weight: 600;
+    color: #374151;
+    padding: 10px 0;
+}
+
+.form__label--italic{
+    font-weight: 200;
+    font-style: italic;
+    font-size: 13px;
+}
+
+
+
+.upload__icon{
+    font-size: 20px;
+    color: #6b7280;
+    margin-bottom: 8px;
+    text-align: center;
+}
+
+.upload__input{
+    display: none;
+}
+
+.form__input,
+.form__select,
+.form__textarea
+ {
+    padding: 12px;
+    font-size: 14px;
+    border: 1px solid #d1d4db;
+    border-radius: 4px;
+}
+
+.form__textarea{
+    min-height: 120px;
+    resize: vertical;
+}
+
+
+.form-assessment,
+.form-escalate,
+.form-action
+{
+    max-width: 900px;
+    margin: 0 auto;
+    background: #ffffff;
+    padding: 32px;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.8);
+}
+
+.form__section legend{
+    font-weight: 600;
+    padding: 15px 0;
+   
+}
+
+.form__section{
+    padding: 15px 0;
+    margin-bottom: 10px;
+}
+
+
+.form__section label{
+    display: block;
+    margin-bottom: 8px;
+    cursor: pointer;
+}
+
+.form__section input[type="radio"]{
+    margin-right: 8px;
+}
+
+
+
+input[value="low"] + span{
+    color: #2ecc71;
+}
+
+input[value="medium"] + span{
+    color: #f1c40f;
+}
+
+input[value="high"] + span{
+    color: #e67e22;
+}
+
+input[value="critical"] + span{
+    color: #e74c3c;
+    font-weight: 600;
+}
+
+
+.form__textarea-assessment{
+    width: 100%;
+    min-height: 100px;
+    padding: 12px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    resize: vertical;
+}
+
+.is-disabled {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+button:disabled{
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+
+
+
+/* .form--card{
+    background: #ffffff;
+    padding: 30px;
+} */
+
+
+
+
+
+
+
+
+.form__google{
+    font-size: 14px;
+    text-align: center;
+    opacity: 0.7;
+    margin: 16px 0;
+}
+
+
+
+.form__hint{
+    font-size: 11px;
+    color: #666;
+}
+
+
+
+
+
+.form--compact{
+    width: 380px;
+    padding: 25px ; 
+
+}
+
+.form--compact .form__input{
+    padding: 10px;
+    font-size: 15px;
+}
+
+.form--compact .btn{
+    padding: 10px;
+    font-size: 14px;
+    
+
+}

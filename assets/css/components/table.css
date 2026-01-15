@@ -1,0 +1,71 @@
+.report-table{
+    width: 100%;
+    border-collapse: collapse ;
+    background: #fff;
+}
+
+.report-table tbody tr:hover{
+    background: #9ca3af;
+}
+
+.report-table__cell{
+    padding: 12px 14px;
+    font-size: 14px;
+    border: 1px solid #e5e7eb;
+    text-align: left;
+}
+
+.report-table__row--head{
+    background: #f3f4f6;
+    font-weight: 600;
+}
+
+.table__selection{
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-bottom: 16px;
+    
+}
+
+.table__select{
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid #e5e7eb;
+    font-size: 14px;
+}
+
+.table__searchbar{
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.table__search{
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    flex: 1;
+}
+
+.table__search-icon{
+    color: #9ca3af;
+}
+
+.table__actions{
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 16px;
+    margin-bottom: 20px;
+}
+
+.table__search-input{
+    border: none;
+    outline: none;
+    width: 100%;
+}
