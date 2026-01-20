@@ -5,8 +5,7 @@
     border: 1px solid #ddd;
     padding: 32px 40px;
     border-radius: 8px;
-    gap: 10px;
-    
+    gap: 10px; 
 }
 
 .form__control{
@@ -54,6 +53,12 @@
 
 }
 
+.form__field--institutional{
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
 
 
 .form__title{
@@ -63,15 +68,29 @@
 }
 
 .form__subtitle{
+    margin: 20px;
+    font-size: 14px;
+    font-style: italic;
     text-align: center;
-    margin-bottom: 20px;
+    font-weight: 600;
+
 }
+
+.form__redirect{
+    text-align: center;
+}
+
 
 .form__title--start
 {
     text-align: start;
 }
 
+.form__title-trackingCode
+{
+    color: #e74c3c;
+
+}
 
 .form__label{
     font-size: 13px;
@@ -107,6 +126,7 @@
     font-size: 14px;
     border: 1px solid #d1d4db;
     border-radius: 4px;
+    width: 100%;
 }
 
 .form__textarea{

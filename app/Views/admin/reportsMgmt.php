@@ -1,7 +1,10 @@
+<?php $_SESSION['role']= 'admin'; ?>
+
 <div class="with-sidebar">
+
     <?php require BASE_PATH . '../app/Views/layouts/sidebar.php' ?>
     
-    <main class="page page-reports">
+    <main class="page page--new-reports">
 
         <header class="page__header">
 

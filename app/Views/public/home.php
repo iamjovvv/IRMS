@@ -29,9 +29,9 @@
                 <i>How may I help you?</i></h4>
 
                 <a class="landing__btn landing__btn--primary" 
-                href="/RMS/public/index.php?url=report">Report Incident</a>
+                href="/RMS/public/index.php?url=reporter/reportForm">Report Incident</a>
 
-                <a class="landing__btn landing__btn--secondary" href="/RMS/public/index.php?url=track">Track Status</a>
+                <a class="landing__btn landing__btn--secondary" href="/RMS/public/index.php?url=reporter/track">Track Status</a>
 
         </form>
 

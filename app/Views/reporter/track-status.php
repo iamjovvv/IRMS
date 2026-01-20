@@ -2,13 +2,21 @@
 
    <section class="form-wrapper">
 
-      <form class="form form--compact">
+      <form class="form form--compact"
+      method="POST"
+      action= "/RMS/public/index.php?url=reporter/track">
     
       <h2 class="form__title">TRACK STATUS</h2>
             
 
         <div class="form__field">
-         <input type="text" class="form__input" placeholder="Enter your code">
+
+         <input 
+            type="text"
+            class="form__input" placeholder="Enter your code"
+            name="tracking_code"
+            required>
+            
         </div>
 
         <button type="submit" class="btn btn--primary">Submit</button>

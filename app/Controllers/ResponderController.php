@@ -1,15 +1,10 @@
 <?php
 
-class ResponderController
+require_once BASE_PATH . '/app/Core/BaseController.php';
+
+class ResponderController extends BaseController
 {
-    function view($view, $data){
-        extract($data);
-
-        require BASE_PATH . '/app/Views/layouts/header.php';
-        require BASE_PATH . '/app/Views/' . $view . '.php';
-        require BASE_PATH . '/app/Views/layouts/footer.php';
-    }
-
+  
     public function responderDashboard(){
         $this->view('responder/responder-dashboard', [
             'page_title' => 'External Responder Dashboard',

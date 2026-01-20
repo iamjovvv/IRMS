@@ -5,34 +5,44 @@
 
    <section class="grid grid--summary">
         
-        <div class="card card--action">
+        <a class="card card--action"
+           href="/RMS/public/index.php?url=incident/summaryReport&code=<?= $incident['tracking_code'] ?>">
             
                 <i class="card__icon fa-regular fa-newspaper" ></i>
                 <p class="card__description">Incident Details</p>
 
-        </div>
+        </a>
 
-        <div class="card card--action">
+        
+
+        <a class="card card--action"
+           href="/RMS/public/index.php?url=reporter/status&code=<?= $incident['tracking_code'] ?>">
            
                 <h2 class="card__status card__status--pending">Pending</h2>
                 
                 <p class="card__description">Current Status</p>
           
-        </div>
+        </a>
 
-        <div class="card card--action">
+
+
+        <a class="card card--action"
+         href="/RMS/public/index.php?url=reporter/evidence&code=<?= $incident['tracking_code'] ?>">
             
                 <i class="card__icon fa-solid fa-plus "></i>
                 <p class="card__description">Add Evidence</p>
            
-        </div>
+        </a>
 
-        <div class="card card--action">
+
+
+        <a class="card card--action"
+         href="/RMS/public/index.php?url=reporter/remarks&code=<?= $incident['tracking_code'] ?>">
             
                 <i class="card__icon fa-regular fa-comment"></i>
                 <p class="card__description">Remarks</p>
 
-        </div>
+        </a>
 
    
    </section>

@@ -1,5 +1,7 @@
 <?php $_SESSION['role']= 'staff'; ?>
 
+
+
 <div class="with-sidebar">
 
     <?php require 
@@ -16,48 +18,43 @@
 
         <section class="grid grid--summary ">
 
-            <div class="card card--action">
+            <a class="card card--action"
+                href="/RMS/public/index.php?url=staff/newReports">
 
                 <i class="card__icon fa-regular fa-file"></i>
 
                 <p class="card__description">New Reports</p>
 
-            </div>
+            </a>
 
-            <div class="card card--action">
+            <a class="card card--action"
+                href="/RMS/public/index.php?url=staff/remarks">
 
                 <i class="card__icon fa-solid fa-comment"></i>
 
                 <p class="card__description">Remarks</p>
 
-            </div>
+            </a>
 
-            <div class="card card--action">
-                <h2 class="card__status">Pending</h2>
 
-            </div>
-
-            <div class="card card--action">
+            <a class="card card--action"
+                href="/RMS/public/index.php?url=staff/reportValidated">
 
                 <i class="card__icon fa-solid fa-clipboard"></i>
 
                 <p class="card__description">Reports Validated</p>
-            </div>
+            </a>
 
-            <div class="card card--action">
 
-                <i class="card__icon fa-solid fa-check"></i>
-
-                <p class="card__description">Resolved</p>
-            </div>
-
-            <div class="card card--action">
+            <a class="card card--action"
+                href="/RMS/public/index.php?url=staff/reportEscalate">
 
                 <i class="card__icon fa-solid fa-circle-exclamation"></i>
 
-                <p class="card__description">Escalated</p>
-            </div>
+                <p class="card__description">Reports Escalated</p>
+            </a>
 
+            
         </section>
 
     </main>

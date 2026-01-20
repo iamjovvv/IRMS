@@ -39,7 +39,7 @@
             
 
 
-            <div class="form__field">
+            <!-- <div class="form__field">
                 <label class="form__label">Status Description</label>
 
                 <textarea class="form__textarea"></textarea>
@@ -52,7 +52,7 @@
 
                 <textarea class="form__textarea"></textarea>
 
-            </div>
+            </div> -->
           
        </form>
 

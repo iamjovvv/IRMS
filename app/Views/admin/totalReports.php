@@ -22,15 +22,10 @@
 
                     </div>
 
+            </section>
                     <p class="page-report__subtitle">
                         Incidents Submitted in the month of May
                     </p>
-
-                
-                
-              
-
-            </section>
             
 
             
