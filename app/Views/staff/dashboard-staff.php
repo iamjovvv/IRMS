@@ -1,8 +1,8 @@
-<?php $_SESSION['role']= 'staff'; ?>
-
 
 
 <div class="with-sidebar">
+
+ <?php $_SESSION['role']= 'staff' ?>
 
     <?php require 
     BASE_PATH . '/app/Views/layouts/sidebar.php'; 
@@ -16,46 +16,108 @@
 
         </header>
 
-        <section class="grid grid--summary ">
+        <?php
+            $success = $_SESSION['success'] ?? null;
+            unset($_SESSION['success']);
+            ?>
 
-            <a class="card card--action"
-                href="/RMS/public/index.php?url=staff/newReports">
+            <?php if ($success): ?>
+            <script>
+                window.toastSuccess = <?= json_encode($success) ?>;
+            </script>
+            <?php endif; ?>
+
+            <div id="toast-container"></div>
+
+       
+
+
+
+
+
+        <!-- <section class="grid grid--summary ">
+
+            <div class="card card--action"  onclick="location.href='/RMS/public/index.php?url=staff/newReports'">
+                
 
                 <i class="card__icon fa-regular fa-file"></i>
 
                 <p class="card__description">New Reports</p>
 
-            </a>
+            </div>
 
-            <a class="card card--action"
-                href="/RMS/public/index.php?url=staff/remarks">
+           
 
-                <i class="card__icon fa-solid fa-comment"></i>
+            <div class="card card--action"
+                onclick="location.href='/RMS/public/index.php?url=staff/reportsValidated'">
 
-                <p class="card__description">Remarks</p>
+                <i class="card__icon fa-solid fa-clipboard-check"></i>
 
-            </a>
+                <p class="card__description">Validated Reports</p>
 
+                
 
-            <a class="card card--action"
-                href="/RMS/public/index.php?url=staff/reportValidated">
-
-                <i class="card__icon fa-solid fa-clipboard"></i>
-
-                <p class="card__description">Reports Validated</p>
-            </a>
+            </div>
 
 
             <a class="card card--action"
-                href="/RMS/public/index.php?url=staff/reportEscalate">
+               onclick="location.href='/RMS/public/index.php?url=staff/reportsInvalidated'">
+
+                <i class="card__icon fa-solid fa-file-excel"></i>
+
+                <p class="card__description">Invalidated Reports</p>
+            </a>
+
+
+            <a class="card card--action"
+                onclick="location.href='/RMS/public/index.php?url=staff/reportsEscalated'">
 
                 <i class="card__icon fa-solid fa-circle-exclamation"></i>
 
-                <p class="card__description">Reports Escalated</p>
+                <p class="card__description">Escalated Reports</p>
             </a>
 
             
-        </section>
+        </section> -->
+
+        <section class="grid grid--summary">
+
+      
+        
+        <a class="card card--action" href="/RMS/public/index.php?url=staff/newReports">
+            <i class="card__icon fa-regular fa-file"></i>
+            <p class="card__description">New Reports</p>
+
+</a>
+
+
+
+  
+        
+        <a class= "card card--action" href="/RMS/public/index.php?url=staff/reportsValidated">
+            <i class="card__icon fa-regular fa-file"></i>
+
+            <p class="card__description">Validated Reports</p>
+        </a>
+  
+
+ 
+        
+        <a class="card card--action" href="/RMS/public/index.php?url=staff/reportsInvalidated">
+            <i class="card__icon fa-solid fa-layer-group"></i>
+            <p class="card__description">Invalidated Reports</p>
+        </a>
+
+
+   
+        
+        <a class="card card--action"  href="/RMS/public/index.php?url=staff/reportsEscalated">
+            <i class="card__icon fa-solid fa-user"></i>
+            <p class="card__description">Escalated Reports</p>
+        </a>
+  
+
+</section>
 
     </main>
 </div>

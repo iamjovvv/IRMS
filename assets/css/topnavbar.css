@@ -9,7 +9,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 30px;
+    padding: 5px;
     background: #45484C;
     color: #63C5DA;
     font-size: 18px;
@@ -19,7 +19,104 @@
     font-weight: bold;
 }
 
+.navbar__menu {* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* ===== NAVBAR CONTAINER ===== */
+.navbar {
+    grid-area: navbar;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 32px;
+    background: linear-gradient(90deg, #2f3337, #45484C);
+    color: #63C5DA;
+    font-size: 16px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+}
+
+/* ===== LOGO ===== */
+.navbar__logo img {
+    height: 55px;         
+    width: auto;
+    display: block;
+}
+
+/* ===== MENU ===== */
 .navbar__menu {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    list-style: none;
+}
+
+/* ===== MENU ITEMS ===== */
+.navbar__item {
+    position: relative;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+/* ===== LINKS ===== */
+.navbar__item a {
+    text-decoration: none;
+    color: #ffffff;
+    font-size: 18px;
+    padding: 6px 20px;
+    transition: color 0.3s ease;
+}
+
+/* Hover underline animation */
+.navbar__item a::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -4px;
+    width: 0;
+    height: 2px;
+    background: #63C5DA;
+    transition: width 0.3s ease;
+}
+
+.navbar__item a:hover::after {
+    width: 100%;
+}
+
+.navbar__item a:hover {
+    color: #63C5DA;
+}
+
+/* ===== BOLD LINKS (Login / Logout) ===== */
+.navbar__link--bold {
+    font-weight: 700;
+    color: #63C5DA !important;
+}
+
+/* ===== LOGIN HIGHLIGHT ===== */
+.navbar__item--login a {
+    background: #63C5DA;
+    color: #1f2428 !important;
+    padding: 8px 18px;
+    border-radius: 20px;
+    transition: background 0.3s ease;
+}
+
+.navbar__item--login a:hover {
+    background: #4fb4c9;
+}
+
+/* ===== TOGGLE (MOBILE) ===== */
+.navbar__toggle {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 22px;
+    cursor: pointer;
+}
+
     display: flex;
     gap: 20px;
     list-style: none;
@@ -48,3 +145,37 @@
     cursor: pointer;
     margin-right: 12px;
 }
+
+
+.navbar__logo img {
+    height: 100px;         
+    width: 100px;
+    display: block;
+    
+}
+
+
+@media (max-width: 768px) {
+    /* Navbar container smaller padding */
+    .navbar {
+        padding: 8px 16px;
+        font-size: 14px;
+    }
+
+    /* Logo smaller */
+    .navbar__logo img {
+        height: 50px;
+        width: auto;
+    }
+
+
+    /* Show menu when toggled */
+    .navbar__menu.active {
+        display: flex;
+    }
+
+   
+
+
+}
+

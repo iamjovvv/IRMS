@@ -1,4 +1,4 @@
-<?php $_SESSION['role']='admin'; ?>
+
 <div class="with-sidebar">
     
 

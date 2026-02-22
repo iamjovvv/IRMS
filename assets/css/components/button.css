@@ -9,12 +9,12 @@
     border-radius: 4px;
     text-decoration: none;
     margin-bottom: 15px;
-   
+
 }
 
 
 .btn--primary{
-    background-color: #63C5DA;
+    background-color: #17376E;
     text-decoration: none;
     color: #fff;
 
@@ -39,3 +39,16 @@
 .btn__action--export{
     background: #63C5DA;
 }
+
+
+
+
+
+.action--btn {
+    position: absolute;
+    top: 140px;
+    right: 20px;
+   
+   
+}
+

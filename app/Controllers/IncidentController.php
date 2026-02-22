@@ -65,6 +65,8 @@ class IncidentController extends BaseController
     }
 
 
+    
+
     public function summary()
     {
         $code = $_GET['code'] ?? '';
@@ -103,7 +105,10 @@ class IncidentController extends BaseController
     }
 
 
-    // $incident = $_SESSION['incident'] ?? null;
+
+    
+
+    
 
 
 }

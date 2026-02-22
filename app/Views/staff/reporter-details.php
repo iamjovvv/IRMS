@@ -1,152 +1,122 @@
-<div class="with-sidebar">
-    
-    <?php require BASE_PATH . '/app/Views/layouts/sidebar.php'?>
 
+<?php
+$steps = [
+    'Incident Details',
+    'Reporter Details',
+    'Assessment'
+];
+
+$currentStep = 2;
+
+// Safety fallback
+$reporter = $reporter ?? [];
+?>
+
+<div class="with-sidebar">
+    <?php require BASE_PATH . '/app/Views/layouts/sidebar.php' ?>
 
     <main class="page page-reporter-details">
+        <section class="form-wrapper">
+            <form method="POST" class="form form-reporter-details"
+                  action="/RMS/public/index.php?url=staff/assessment"
+                  enctype="multipart/form-data">
 
-    <section class="form-wrapper">
-
-        <form 
-            method="POST" 
-            class="form form-reporter-details" 
-            action="/RMS/public/index.php?url=staff/assessment"
-            enctype="multipart/form-data">
-
-            <h2 class="form__title">Reporter Details</h2>
-
-                <label class="form__label form__label">Reporter Identity</label>
-
-            <div class="form__row form__row--three">
-
-                <div class="form__field">
-
-                    <label class="form__label--italic" for="last_name">last name</label>
-
-                    <input type="text" class="form__input" id="last_name" >
-
-                </div>
-
-                <div class="form__field">
-
-                    <label class="form__label--italic">first name</label>
-
-                    <input type="text" class="form__input">
-
-                </div>
-
-                <div class="form__field">
-
-                    <label class="form__label--italic">M.I.</label>
-
-                    <input type="text" class="form__input">
-
-                </div>
-
-            </div>
+                <h2 class="form__title">Report Details</h2>
 
 
-            <div class="form__row form__row--two">
+                
+                <!-- REPORTER IDENTITY -->
+                <label class="form__label">Reporter Identity</label>
 
-                <div class="form__field">
-                    <label class="form__label--italic">reporter I.D.</label>
+                <div class="form__row form__row--three">
 
-                    <input type="text" class= "form__input">
+                    <div class="form__field">
+                        <label class="form__label--italic">Username</label>
+                        <input type="text" class="form__input"
+                               value="<?= htmlspecialchars($reporter['username'] ?? 'Unknown') ?>"
+                               readonly>
+                    </div>
 
-                </div>
+                    <div class="form__field">
+                        <label class="form__label--italic">Authentication Method</label>
+                        <input type="text" class="form__input"
+                               value="<?= htmlspecialchars($reporter['auth_method'] ?? 'Unknown') ?>"
+                               readonly>
+                    </div>
 
-                <div class="form__field">
-                    <label class="form__label--italic">role</label>
-
-                    <input type="text" class= "form__input" >
-                </div>
-
-            </div>
-
-
-            <label class="form__label form__label">Submission Info</label>
-
-            <div class="form__row">
-
-                <div class="form__field">
-
-                    <label class="form__label--italic">Submitted Using</label>
-
-                    <input type= "text" class="form__input">
-
-                </div>
-
-            </div>
-
-
-            <div class="form__row form__row--two">
-
-                <div class="form__field">
-
-                    <label class="form__label--italic">Date Submitted</label>
-
-                    <input type="text" class="form__input">
-
-                </div>
-
-                <div class="form__field">
-
-                    <label class="form__label--italic">Time Submitted</label>
-
-                    <input type="text" class= "form__input">
-
+                    <?php if (!empty($reporter) && $reporter['auth_method'] === 'org_id'): ?>
+                        <div class="form__field">
+                            <label class="form__label--italic">Organization ID</label>
+                            <input type="text" class="form__input"
+                                   value="<?= htmlspecialchars($reporter['org_id_number'] ?? '') ?>"
+                                   readonly>
+                        </div>
+                    <?php elseif (!empty($reporter) && $reporter['auth_method'] === 'phone'): ?>
+                        <div class="form__field">
+                            <label class="form__label--italic">Phone Number</label>
+                            <input type="text" class="form__input"
+                                   value="<?= htmlspecialchars($reporter['phone'] ?? '') ?>"
+                                   readonly>
+                        </div>
+                    <?php endif; ?>
                 </div>
 
 
-            </div>
+                <!-- LOCATION -->
+                <label class="form__label">Reporter Location</label>
 
+                    <div class="form__field">
+                        <label class="form__label--italic">Address</label>
+                        <input type="text" class="form__input"
+                               value="<?= htmlspecialchars($incident['readable_address']) ?>"
+                               readonly>
+                    </div>
+                
 
-             <label class="form__label form__label">Report Metadata</label>
+                <!-- SUBMISSION INFO -->
+                <label class="form__label">Submission Info</label>
+                <div class="form__row form__row--two">
+                    <div class="form__field">
+                        <label class="form__label--italic">Date Submitted</label>
+                        <input type="text" class="form__input"
+                               value="<?= htmlspecialchars($incident['created_at']) ?>"
+                               readonly>
+                    </div>
 
-            <div class="form__row form__row--two">
-
-                <div class="form__field">
-
-                    <label class="form__label--italic">Report Urgency</label>
-
-                    <input type="text" class="form__input">
-
+                    <div class="form__field">
+                        <label class="form__label--italic">Tracking Code</label>
+                        <input type="text" class="form__input"
+                               value="<?= htmlspecialchars($incident['tracking_code']) ?>"
+                               readonly>
+                    </div>
                 </div>
 
-                <div class="form__field">
+                <!-- REPORT METADATA -->
+                <label class="form__label">Report Metadata</label>
+                <div class="form__row form__row--two">
+                    <div class="form__field">
+                        <label class="form__label--italic">Incident Severity</label>
+                        <input type="text" class="form__input"
+                               value="<?= htmlspecialchars($incident['incident_type']) ?>"
+                               readonly>
+                    </div>
 
-                    <label class="form__label--italic">Tracking Code</label>
-
-                    <input type="text" class="form__input">
-
+                    <div class="form__field">
+                        <label class="form__label--italic">Current Status</label>
+                        <input type="text" class="form__input"
+                               value="<?= htmlspecialchars($incident['status']) ?>"
+                               readonly>
+                    </div>
                 </div>
 
-            </div>
+                <!-- <button type="submit" class="btn btn--primary">Save & Continue</button> -->
 
-            <button type="submit" class="btn btn--primary">Save & Continue</button>
+            </form>
+        </section>
 
-
-
-        </form>
-
-    </section>
-
-                            <!-- STEPPER -->
-
-                            <?php
-                                $steps = [
-                                    'Incident Details',
-                                    'Reporter Details',
-                                    'Assessment',
-                                    'Status'
-                                ];
-
-                                $currentStep= 2;
-
-                                require BASE_PATH . '/app/Views/layouts/steps-bar.php';
-
-                            ?>
-
-
-</main>
+        <!-- STEPPER -->
+        <?php if (!empty($steps)): ?>
+            <?php require BASE_PATH . '/app/Views/layouts/steps-bar.php'; ?>
+        <?php endif; ?>
+    </main>
 </div>

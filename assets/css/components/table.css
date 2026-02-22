@@ -75,3 +75,42 @@
     background-color: #ffe6e6; /* light red for fatal */
     font-weight: bold;
 }
+
+
+
+
+
+
+@media (max-width: 768px) {
+    /* Make table horizontally scrollable */
+    .report-table {
+        display: block;
+        overflow-x: auto;
+        width: 100%;
+    }
+
+    .report-table__cell,
+    .report-table__row--head {
+        padding: 8px 10px;
+        font-size: 13px;
+    }
+
+    /* Make search/filter stack nicely */
+    .table__selection,
+    .table__searchbar,
+    .table__actions {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+
+    .table__select,
+    .table__search,
+    .table__actions button {
+        width: 100%;
+    }
+
+    .table__search {
+        flex: 1 1 100%;
+    }
+}

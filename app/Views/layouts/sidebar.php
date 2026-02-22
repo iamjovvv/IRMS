@@ -1,18 +1,19 @@
 <?php
 
 
-$_SESSION['role'] = 'staff';
 
-require_once BASE_PATH . '/app/core/auth.php';
+
+require_once BASE_PATH . '/app/Middleware/Auth.php';
 
 $menus = require BASE_PATH . '/app/config/sidebar.menu.php';
-$role = $_SESSION['role'] ?? null;
+
+$role = $_SESSION['user']['role'] ?? null;
 
 if(!$role || !isset($menus[$role])){
     return; //no sidebar
 }
 
-$currentPage = basename($_SERVER['PHP_SELF']);
+// $currentPage = basename($_SERVER['PHP_SELF']);
 $roleMenu = $menus[$role];
 
 ?>

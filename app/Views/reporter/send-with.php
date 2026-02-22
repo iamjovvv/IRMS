@@ -3,13 +3,7 @@ $errors = $_SESSION['errors'] ?? [];
 unset($_SESSION['errors']);
 ?>
 
-<?php if (!empty($errors)): ?>
-    <div class="form__errors">
-        <?php foreach ($errors as $error): ?>
-            <p><?= htmlspecialchars($error) ?></p>
-        <?php endforeach; ?>
-    </div>
-<?php endif; ?>
+
 
 
 
@@ -17,11 +11,22 @@ unset($_SESSION['errors']);
 
     <section class="form-wrapper">
 
+    <div id="toast-container"></div>
+   
+
         <form class="form form--compact"
               method="POST"
               action="/RMS/public/index.php?url=reporter/submitReport">
 
             <h2 class="form__title">Send With </h2>
+
+
+             <?php if (!empty($errors)): ?>
+                <script>
+                window.toastErrors = <?= json_encode(array_values($errors)) ?>;
+                </script>
+            <?php endif; ?>
+
 
             <!-- auth method -->
           <div class="form__field">
@@ -35,7 +40,7 @@ unset($_SESSION['errors']);
 
                 <option value="">Choose method</option>
                 <option value="org_id">Institutional ID</option>
-                <option value="google">Google</option>
+                <!-- <option value="google">Google</option> -->
                 <option value="phone">Phone</option>
 
               </select>
@@ -45,6 +50,8 @@ unset($_SESSION['errors']);
           <!-- institutional login -->
 
            <div class="form__field form__field--institutional">
+        
+
             <!-- separate field for institutional auth -->
             <p class="form__subtitle">[Institutional ID (staff/ student)]</p>
 
@@ -116,3 +123,5 @@ unset($_SESSION['errors']);
 
 
 </main>
+
+

@@ -56,7 +56,7 @@ class UserModel extends BaseModel
             ':role' => $data['role']
         ]);
 
-        return $this->pdo->lastInserId();
+        return $this->pdo->lastInsertId();
     }
 
 
@@ -98,6 +98,27 @@ class UserModel extends BaseModel
 
         return (bool) $stmt->fetch();
     }
+
+
+
+    public function getResponders(): array
+{
+    $stmt = $this->pdo->prepare("
+        SELECT id, username
+        FROM users
+        WHERE role= 'responder' AND status = 'active'
+        ORDER BY username ASC
+    ");
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+public function findById(int $id)
+{
+    $stmt = $this->pdo->prepare("SELECT * FROM users WHERE id = :id LIMIT 1");
+    $stmt->execute([':id' => $id]);
+    return $stmt->fetch(PDO::FETCH_ASSOC);
+}
 
 }
 

@@ -1,3 +1,16 @@
+<?php
+
+$incidentId = $incident['id'] ?? 0;
+
+if (!$incidentId) {
+    echo "Invalid incident ID";
+    exit;
+}
+
+?>
+
+
+
 <div class="with-sidebar">
 
     <?php require BASE_PATH . '/app/Views/layouts/sidebar.php' ?>
@@ -6,7 +19,16 @@
 
         <div class="form__wrapper">
 
-            <form class="form form-escalate">
+            <form class="form form-escalate"
+                    method="POST"
+                    action="/RMS/public/index.php?url=staff/submitEscalation"
+            >
+
+            
+           
+
+             <input type="hidden" name="tracking_code" value="<?= htmlspecialchars($incident['tracking_code']) ?>">
+
 
                 <h2 class="form__title">Incident Escalation</h2>
                 
@@ -16,57 +38,38 @@
 
                 <div class="form__field">
 
-                    <select id="external_responder" name="external_responder" class="form__select">
-
-                        <option value="">Select Responder</option>
-
-                        <option value="police">Police</option>
-                        
-                        <option value="bureau of fire">Bureau of Fire</option>
-
-                    </select>
+                    <select id="external_responder_id" name="external_responder_id" class="form__select" required>
+    <option value="">Select Responder</option>
+    <?php foreach ($responders as $responder): ?>
+        <option value="<?= $responder['id'] ?>"><?= htmlspecialchars($responder['username']) ?></option>
+    <?php endforeach; ?>
+</select>
 
                 </div>
 
 
             
-                <h3 class="form__title--start">Information to Share</h3>
-
-                <div class="form__field">
-
-                    <label class="form__label">Incident Type</label>
-
-                    <input name="incident_type" type="text" class="form__input">
-
-                </div>
-
-                <div class="form__field">
-
-                    <label class="form__label">Location</label>
-
-                    <input name="location" type="text" class="form__input">
-
-                </div>
-
-                <div class="form__field">
-
-                    <label class="form__label">Urgency</label>
-
-                    <input name="urgency" type="text" class="form__input">
-
-                </div>
+               
 
                 <div class="form__field">
                     <label class="form__label">Description</label>
 
-                    <textarea name="description" class="form__textarea"></textarea>
+                    <textarea name="description" class="form__textarea" placeholder="you can add here additional information if you want..." required>
+                        
+                    </textarea>
 
                 </div>
 
-                <button type="button" class="btn btn-view-preview">[View Full Preview]
+                <button type="button" class="btn btn-view-preview"
+                onclick="window.location.href='/RMS/public/index.php?url=reporter/reportFormGet&code=<?= urlencode($incident['tracking_code']) ?>&preview=1'">
+                    [View Full Preview]
                 </button>
 
-                <button type="submit" class="btn btn--primary">Forward</button>
+
+                <button type="submit" class="btn btn--primary"
+                onclick="return confirm('Are you sure you want to forward this incident?');">
+                Forward
+                </button>
                 
             </form>
 

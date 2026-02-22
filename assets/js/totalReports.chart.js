@@ -1,32 +1,33 @@
-document.addEventListener('DOMContentLoaded', () =>{
-    const ctx = document.getElementById('totalReportsChart');
-    if (!ctx) return;
+const reportData = window.totalReportData || {
+    total: 0,
+    pending: 0,
+    in_progress: 0,
+    resolved: 0,
+    rejected: 0
+};
 
-    new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: ['Pending', 'In Progress', 'Resolved', 'Rejected'],
-            datasets: [{
-                label: 'Reports',
-                data: [40, 65, 110, 19],
-                borderRadius: 6
-            }]
-        },
+document.getElementById('totalReportsCount').textContent = reportData.total;
+document.getElementById('pendingCount').textContent = reportData.pending;
+document.getElementById('inProgressCount').textContent = reportData.in_progress;
+document.getElementById('resolvedCount').textContent = reportData.resolved;
+document.getElementById('rejectedCount').textContent = reportData.rejected;
 
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    display: false
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true
-                }
-            }
-        }
-    });
+// Chart.js
+const ctx = document.getElementById('totalReportsChart').getContext('2d');
+const chart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: ['Pending', 'In Progress', 'Resolved', 'Rejected'],
+        datasets: [{
+            label: 'Number of Reports',
+            data: [
+                reportData.pending,
+                reportData.in_progress,
+                reportData.resolved,
+                reportData.rejected
+            ],
+            backgroundColor: ['#f1c40f','#3498db','#2ecc71','#e74c3c']
+        }]
+    },
+    options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
 });
-

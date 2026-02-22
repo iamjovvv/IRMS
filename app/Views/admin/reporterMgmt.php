@@ -1,219 +1,179 @@
-<?php $_SESSION['role']='admin'; ?>
 <div class="with-sidebar">
-    
 
     <?php require BASE_PATH . '/app/Views/layouts/sidebar.php'; ?>
 
-    <main class="page page--new-reports">
+    <main class="page page--accounts">
 
-        <header class= "page__header">
+    <style>
+        .table__actions {
+      position: fixed;
+    top: 120px;
+    right: 30px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
 
-            <h1  class="page__title">Reporter Account Management</h1>
+.btns-primary,
+.btns-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    font-size: 14px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s;
+    font-family: 'Georgia', serif;
+    letter-spacing: 0.5px;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+    white-space: nowrap;
+}
 
+.btns-primary         { background: #1a237e; color: #fff; }
+.btns-primary:hover   { background: #283593; }
+.btns-secondary       { background: #fff; color: #1a237e; border: 1px solid #1a237e; }
+.btns-secondary:hover { background: #e8eaf6; }
+    </style>
+
+        <header class="page__header">
+            <h1 class="page__title"><?= htmlspecialchars($page_title) ?></h1>
         </header>
 
+        <div class="page__container page__container-accounts">
 
-        <div class="page__container page__container-reports">
-
-             <div class="table__actions">
-
-            <button class="btn__action  btn__action--export">
-
-                <i class="fa-solid fa-file-export"></i> Export
+            <div class="table__actions">
                 
-            </button>
+                <button class="btns-primary">
+                    <i class="fa-solid fa-file-export"></i> Export
+                </button>
+                <!-- <button class="btn__action btn__action--add" id="openCreateUser">
+                    <i class="fa-solid fa-plus"></i> Add Account
+                </button> -->
 
-            <button class="btn__action btn__action--add" id="openCreateUser">
-
-                <i class="fa-solid fa-plus"></i> Add Account
-            </button>
-
-            </div>
-            
-            
-            <div class="table__selection">
-
-                 <div class="table__search">
-                <i class="fa-solid fa-magnifying-glass table__search-icon"></i>
-                <input 
-                    type="text"
-                    class="table__search-input"
-                    placeholder="Search staff..."
-                >
-                </div>
-
-                <select class="table__select">
-                    <option value="">All Roles</option>
-                    <option value="faculty">Faculty</option>
-                      <option value="other">others, please specify</option>
-
-                </select>
-
-                <select class="table__select">
-
-                    <option value="">All Status</option>
-                    <option value="active">Active</option>
-                    <option value="inactive">Inactive</option>
-                    <option value="banned">Banned</option>
-                    <option value="suspended">Suspended</option>
-
-                </select>
-                
-                
-
-                <select class="table__select">
-                    <option value="">All Departments</option>
-                    <option value="College of Science">College of Science</option>
-                    <option value="Veterinary of Medicine">Veterinary of Medicine</option>
-
-                </select>
+                <a href="/RMS/public/index.php?url=admin/createUser" class="btns-secondary">
+                + Create Account
+                </a>     
 
             </div>
 
 
+           
+                <table class="report-table">
+
+                    <thead>
+                        <tr class="report-table__row report-table__row--head">
+                            <?php foreach ($columns as $col): ?>
+                                <th class="report-table__cell"><?= htmlspecialchars($col) ?></th>
+                            <?php endforeach; ?>
+                            <th class="report-table__cell">Action</th>
+                        </tr>
+                    </thead>
 
 
-            <table class="report-table">
+                    <tbody>
+                        <?php if (!empty($accounts)): ?>
+                            
+                            <?php foreach ($accounts as $account): ?>
+                                <tr class="report-table__row">
+                                    <?php foreach ($fields as $field): ?>
+                                        <td class="report-table__cell"><?= htmlspecialchars($account[$field] ?? '') ?></td>
+                                    <?php endforeach; ?>
+                                    <td class="report-table__cell">
+                                        <a class="table__action" href="/RMS/public/index.php?url=admin/editUser&id=<?= $account['user_id'] ?>">Edit</a>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
 
-                <thead>
+                        <?php else: ?>
+                            
+                            <tr>
+                                <td colspan="<?= count($columns) + 1 ?>" class="report-table__cell">No accounts found</td>
+                            
+                            </tr>
+                        <?php endif; ?>
+                        
+                    </tbody>
 
-                    <tr class="report-table__row report-table__row--head">
-
-                        <th class="report-table__cell">ID</th>
-                        <th class="report-table__cell">First Name</th>
-                        <th class="report-table__cell">Last Name</th>
-                        <th class="report-table__cell">Middle Name</th>
-                        <th class="report-table__cell">ID No.</th>
-                        <th class="report-table__cell">Birthday</th>
-                        <th class="report-table__cell">Status</th>
-                        <th class="report-table__cell">Department</th>
-                        <th class="report-table__cell">Role</th>
-                        <th class="report-table__cell">Action</th>
-
-                    </tr>
-
-                </thead>
-
-                <tbody>
-
-                    <tr class="report-table__row">
-
-                        <td class="report-table__cell">1</td>
-                        <td class="report-table__cell">Jove</td>
-                        <td class="report-table__cell">Batlangao</td>
-                        <td class="report-table__cell">Espelimbergo</td>
-                        <td class="report-table__cell">223152</td>
-                        <td class="report-table__cell">08/05/2004</td>
-                        <td class="report-table__cell report-table--status">Active</td>
-                        <td class="report-table__cell">College of Science</td>
-                        <td class="report-table__cell">Student</td>
-                        <td class="report-table__cell">
-                            <a class="table__action" href="/RMS/public/index.php?url=report-review">Edit</a>
-                        </td>
-
-                    </tr>
-
-                </tbody>
-
-            </table>
-
-
+                </table>
 
         </div>
 
-
-    
     </main>
 
-     
-
 </div>
 
 
-<!-- CREATE USER MODAL -->
-<div class="modal" id="createUserModal">
-    <div class="modal__overlay"></div>
 
-    <div class="modal__content">
-        <h2>Create Account</h2>
-
-        <form method="POST" action="/RMS/public/index.php?url=admin/users/store">
-
-            <label>Role</label>
-            <select name="role" id="roleSelect" required>
-                <option value="">Select role</option>
-                <option value="reporter">Reporter</option>
-                <option value="staff">Staff</option>
-            </select>
-
-            <label>Username</label>
-            <input type="text" name="username" required>
-
-            <label>Password</label>
-            <input type="password" name="password" required>
-
-            <!-- Reporter fields -->
-            <div class="role-fields" id="reporterFields">
-                <label>First Name</label>
-                <input type="text" name="first_name">
-
-                <label>Last Name</label>
-                <input type="text" name="last_name">
-
-                <label>ID Number</label>
-                <input type="text" name="id_number">
-            </div>
-
-            <!-- Staff fields -->
-            <div class="role-fields" id="staffFields">
-                <label>Position</label>
-                <input type="text" name="position">
-
-                <label>Office</label>
-                <input type="text" name="office">
-            </div>
-
-            <div class="modal__actions">
-                <button type="submit">Create</button>
-                <button type="button" id="closeCreateUser">Cancel</button>
-            </div>
-
-        </form>
-    </div>
-</div>
 
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
 
+
     const openBtn = document.getElementById('openCreateUser');
     const closeBtn = document.getElementById('closeCreateUser');
     const modal = document.getElementById('createUserModal');
 
+
     const roleSelect = document.getElementById('roleSelect');
     const reporterFields = document.getElementById('reporterFields');
     const staffFields = document.getElementById('staffFields');
+    const responderFields = document.getElementById('responderFields');
 
-    openBtn.addEventListener('click', () => {
-        modal.classList.add('active');
-    });
 
-    closeBtn.addEventListener('click', () => {
-        modal.classList.remove('active');
-    });
+    openBtn.addEventListener('click', () => modal.classList.add('active'));
+    closeBtn.addEventListener('click', () => modal.classList.remove('active'));
+
 
     roleSelect.addEventListener('change', () => {
-        reporterFields.style.display = 'none';
-        staffFields.style.display = 'none';
+    reporterFields.style.display = 'none';
+    staffFields.style.display = 'none';
+    responderFields.style.display = 'none';
 
-        if (roleSelect.value === 'reporter') {
-            reporterFields.style.display = 'block';
-        }
 
-        if (roleSelect.value === 'staff') {
-            staffFields.style.display = 'block';
-        }
+    if (roleSelect.value === 'reporter') reporterFields.style.display = 'block';
+    if (roleSelect.value === 'staff') staffFields.style.display = 'block';
+    if (roleSelect.value === 'responder') responderFields.style.display = 'block';
     });
 
+});
+                                
+</script>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const exportBtn = document.querySelector('.btn__action--export');
+
+    exportBtn.addEventListener('click', () => {
+        const table = document.querySelector('.report-table');
+        const rows = Array.from(table.querySelectorAll('tr'));
+        let csvContent = '';
+
+        rows.forEach(row => {
+            const cells = Array.from(row.querySelectorAll('th, td'));
+            const rowData = cells.map(cell => `"${cell.textContent.replace(/"/g, '""')}"`);
+            csvContent += rowData.join(',') + '\r\n';
+        });
+
+        // Download as CSV
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+
+        // Dynamic filename based on page
+        const pageTitle = document.querySelector('.page__title').textContent.trim().replace(/\s+/g, '_');
+        a.download = `${pageTitle}.csv`;
+
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    });
+    
 });
 </script>

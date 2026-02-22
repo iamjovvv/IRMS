@@ -19,6 +19,22 @@ class StaffModel extends BaseModel
             ':off' => $data['office']
         ]);
     }
+
+    public function updateByUserId(int $userId, string $position, string $office)
+{
+    $stmt = $this->pdo->prepare("
+        UPDATE staff
+        SET staff_id = :position, office = :office
+        WHERE user_id = :userId
+    ");
+    return $stmt->execute([
+        ':position' => $position,
+        ':office'   => $office,
+        ':userId'   => $userId
+    ]);
+}
+
+    
 }
 
 

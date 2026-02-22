@@ -70,12 +70,12 @@
 
 .step.active .circle
 {
-    background: #6f42c1;
+    background: #FFD700;
     color: #fff;
 }
 
 .step.completed .circle{
-    background: #6f42c1;
+    background: #17376E;
     color: #fff;
 
 }
@@ -88,5 +88,47 @@
 
 .line.filled
 {
-    background: #6f42c1;
+    background: #17376E;
+}
+
+
+/* ======================
+   MOBILE STEPPER
+   ====================== */
+@media (max-width: 768px) {
+
+    .stepper {
+        left: 60px; /* space for mobile sidebar icons */
+        right: 0;
+        bottom: 0;
+        padding: 6px 4px;
+        display: flex;
+        gap: 8px;
+        overflow-x: auto; /* allow horizontal scroll */
+        background: #fff;
+        border-top: 1px solid #ddd;
+        box-shadow: 0 -2px 8px rgba(0,0,0,0.08);
+        z-index: 999;
+    }
+
+    .step {
+        min-width: 60px;
+        flex-shrink: 0; /* prevent squishing */
+    }
+
+    .circle {
+        width: 28px;
+        height: 28px;
+        font-size: 12px;
+    }
+
+    .label {
+        font-size: 10px;
+        margin-top: 4px;
+    }
+
+    .line {
+        height: 3px;
+        margin: 0 4px;
+    }
 }

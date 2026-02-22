@@ -8,11 +8,11 @@
 
         <h2 class="landing__title">Welcome!</h2>
 
-        <h6 class="landing__subtitle">UEPs Incident and Concern Reporting System</h6>
+        <h6 class="landing__subtitle">UEP Incident Reporting and Management System</h6>
 
         <p class="landing__tagline">
 
-            <i>Ensuring your voice will be heard in times of Emergency</i>
+            <i>Ensuring your voice will be heard in times of Emergency. UEP Cares.</i>
             
         </p>
 

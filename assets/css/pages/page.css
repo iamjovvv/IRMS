@@ -112,19 +112,55 @@
     display: block;
 }
 
-@media (max-width: 640px){
-    .page{
-        padding: 20px 16px;
+
+
+
+@media (max-width: 768px) {
+    /* Reduce page padding */
+    .page {
+        padding: 16px 12px;
     }
 
-    .page__header{
-        margin-bottom: 24px;
+    /* Header spacing */
+    .page__header {
+        margin-bottom: 20px;
     }
 
-    .page__title{
-        font-size: 22px;
+    /* Title smaller font */
+    .page__title {
+        font-size: 20px;
+        padding: 0 16px;
     }
-    .page__container{
+
+    /* Container full width with less padding */
+    .page__container {
         width: 100%;
+        padding: 16px;
+        border-radius: 6px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        overflow-x: auto;
+    }
+
+    /* Charts adapt to screen */
+    .page-report__chart {
+        min-width: 100%;
+        height: 200px;
+    }
+
+    /* Summary text smaller */
+    .page-report__summary {
+        font-size: 0.9rem;
+    }
+
+    /* Status list */
+    .page-report__status li {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+    }
+
+    /* Counts smaller */
+    .page-report__count {
+        font-size: 2rem;
     }
 }
