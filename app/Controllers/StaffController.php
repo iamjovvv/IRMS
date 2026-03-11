@@ -77,45 +77,6 @@ public function dashboardStaff()
 
 
 
-//     public function newReports()
-// {
-    
-//     $filters = [];
-
-//     if(!empty($_GET['category']))
-//         {
-//             $filters['category'] = $_GET['category'];
-//         }
-
-//         if(!empty($_GET['status']))
-//             {
-//                 $filters['status'] =trim($_GET['status']);
-//             }
-
-
-//         $incidentModel = new IncidentModel();
-//         $reports = $incidentModel->getNewReports($filters);
-
-
-//         $this->view('staff/new-reports', [
-//             'reports' => $reports,
-//             'page_title' => 'New Reports',
-//             'mode' => 'edit',
-//             'page_css' => [
-//                 'topnavbar.css',
-//                 'sidebar.css',
-//                 'base/typography.css',
-//                 'components/table.css',
-//                 'pages/page.css'
-//             ],
-//             'page_js' => [
-//                 'sidebar.js'
-//             ]
-//         ]);
-//         // var_dump($filters);
-//         exit;
-// }
-
 
 public function newReports()
 {
@@ -123,7 +84,7 @@ public function newReports()
 
     $filters = [
         'category' => trim($_GET['category'] ?? ''),
-        'status'   => 'new', // enforced
+        'status'   => 'new', 
     ];
 
     $incidentModel = new IncidentModel();
@@ -217,7 +178,8 @@ public function reviewIncident()
             'components/status.css',
             'pages/page.css',
             'layouts/form-layout.css',
-            'components/steps-bar.css'
+            'components/steps-bar.css',
+            'components/attachment.css'
         ],
         'page_js' => ['sidebar.js']
     ]);
@@ -305,78 +267,6 @@ public function reporterDetails()
         'incident' => $incident,
         'reporter' => $reporter
     ]);
-}
-
-
-
-
-
-
-public function submitExternalAction()
-{
-    Auth::requireRole(['responder']);
-    $this->requirePost();
-
-    $data = $this->sanitizeExternalAction($_POST);
-
-    $errors = $this->validateExternalAction($data);
-    if (!empty($errors)) {
-        $_SESSION['error'] = implode(' ', $errors);
-        header("Location: /RMS/public/index.php?url=responder/viewIncident&code=" . urlencode($data['tracking']));
-        exit;
-    }
-
-    $incidentModel = new IncidentModel();
-    $incident = $incidentModel->findById($data['incident_id']);
-
-    if (!$incident) {
-        $_SESSION['error'] = 'Incident not found.';
-        header("Location: /RMS/public/index.php?url=responder/dashboard");
-        exit;
-    }
-
-    // Check assignment
-    if (!$incidentModel->isIncidentAssignedToResponder(
-        $incident['id'],
-        $_SESSION['user']['id']
-    )) {
-        $_SESSION['error'] = 'You are not assigned to this incident.';
-        header("Location: /RMS/public/index.php?url=responder/dashboard");
-        exit;
-    }
-
-    // Check status permissions
-    if (!IncidentPolicy::responderCanTakeAction($incident, $_SESSION['user'])) {
-        $_SESSION['error'] = 'You cannot take action on this incident.';
-        header("Location: /RMS/public/index.php?url=responder/viewIncident&code=" . urlencode($incident['tracking_code']));
-        exit;
-    }
-
-    try {
-        $incidentModel->beginTransaction();
-
-        $incidentModel->addAction([
-            'incident_id' => $incident['id'],
-            'action_taken'=> $data['action_taken'],
-            'status'      => $data['status'],
-            'acted_by'    => $_SESSION['user']['id'],
-        ]);
-
-        // Responders may update status (usually ongoing / resolved)
-        if ($data['status']) {
-            $incidentModel->updateStatus($incident['id'], $data['status']);
-        }
-
-        $incidentModel->commit();
-
-        $_SESSION['success'] = 'Action recorded successfully.';
-    } catch (Exception $e) {
-        $incidentModel->rollBack();
-        $_SESSION['error'] = 'Failed to submit action.';
-    }
-
-    header("Location: /RMS/public/index.php?url=responder/viewIncident&code=" . urlencode($incident['tracking_code']));
-    exit;
 }
 
 
@@ -707,10 +597,11 @@ public function reportsResolved() {
 }
 
 public function reportsEscalated() {
-    $this->renderReportPage('escalated', 'Escalated Reports', [
-        'validity' => 'valid',
-        'priority' => ['high','critical']
-    ]);
+    // $this->renderReportPage('escalated', 'Escalated Reports', [
+    //     'validity' => 'valid',
+    //     'priority' => ['high','critical']
+    // ]);
+     $this->renderReportPage('escalated', 'Escalated Reports');
 
 }
 
@@ -954,18 +845,18 @@ public function submitAction()
         $incidentModel->beginTransaction();
 
         // Build involved parties array from parallel POST arrays
-$involvedParties = [];
-$owners       = $_POST['owner_of_property'] ?? [];
-$areas        = $_POST['affected_area']     ?? [];
-$descriptions = $_POST['party_description'] ?? [];
+    $involvedParties = [];
+    $owners       = $_POST['owner_of_property'] ?? [];
+    $areas        = $_POST['affected_area']     ?? [];
+    $descriptions = $_POST['party_description'] ?? [];
 
-foreach ($owners as $i => $owner) {
-    if (trim($owner) === '' && trim($areas[$i] ?? '') === '') continue; // skip empty rows
-    $involvedParties[] = [
-        'owner'       => trim($owner),
-        'area'        => trim($areas[$i] ?? ''),
-        'description' => trim($descriptions[$i] ?? ''),
-    ];
+    foreach ($owners as $i => $owner) {
+        if (trim($owner) === '' && trim($areas[$i] ?? '') === '') continue; // skip empty rows
+        $involvedParties[] = [
+            'owner'       => trim($owner),
+            'area'        => trim($areas[$i] ?? ''),
+            'description' => trim($descriptions[$i] ?? ''),
+        ];
 }
 
 $incidentModel->addAction([
@@ -988,6 +879,32 @@ $incidentModel->addAction([
     'signatory_position'      => trim($_POST['signatory_position']      ?? ''),
 
 ]);
+
+if (!empty($_FILES['incident_image']['name'][0])) {
+    $mediaModel = new IncidentMediaModel($this->pdo);
+    $uploadDir  = BASE_PATH . '/public/uploads/';
+
+    foreach ($_FILES['incident_image']['tmp_name'] as $i => $tmpName) {
+        if ($_FILES['incident_image']['error'][$i] !== UPLOAD_ERR_OK) continue;
+
+        $ext      = strtolower(pathinfo($_FILES['incident_image']['name'][$i], PATHINFO_EXTENSION));
+        $safeName = uniqid('inc_', true) . '.' . $ext;
+
+        if (move_uploaded_file($tmpName, $uploadDir . $safeName)) {
+            $fileType = str_starts_with(
+                $_FILES['incident_image']['type'][$i], 'video/'
+            ) ? 'video' : 'image';
+
+            $mediaModel->save([
+                'incident_id' => $incidentId,
+                'action_id'   => $actionId,   // ✅ links to the specific action
+                'file_path'   => 'public/uploads/' . $safeName,
+                'file_type'   => $fileType,
+                'uploaded_by' => $responderId,
+            ]);
+        }
+    }
+}
 
         if ($_POST['status_update'] !== '') {
             $incidentModel->updateStatus($incident['id'], $_POST['status_update']);
@@ -1032,6 +949,77 @@ private function validateAction(array $data): array
 
 
 
+public function submitExternalAction()
+{
+    Auth::requireRole(['responder']);
+    $this->requirePost();
+
+    $data = $this->sanitizeExternalAction($_POST);
+
+    $errors = $this->validateExternalAction($data);
+    if (!empty($errors)) {
+        $_SESSION['error'] = implode(' ', $errors);
+        header("Location: /RMS/public/index.php?url=responder/viewIncident&code=" . urlencode($data['tracking']));
+        exit;
+    }
+
+    $incidentModel = new IncidentModel();
+    $incident = $incidentModel->findById($data['incident_id']);
+
+    if (!$incident) {
+        $_SESSION['error'] = 'Incident not found.';
+        header("Location: /RMS/public/index.php?url=responder/dashboard");
+        exit;
+    }
+
+    // Check assignment
+    if (!$incidentModel->isIncidentAssignedToResponder(
+        $incident['id'],
+        $_SESSION['user']['id']
+    )) {
+        $_SESSION['error'] = 'You are not assigned to this incident.';
+        header("Location: /RMS/public/index.php?url=responder/dashboard");
+        exit;
+    }
+
+    // Check status permissions
+    if (!IncidentPolicy::responderCanTakeAction($incident, $_SESSION['user'])) {
+        $_SESSION['error'] = 'You cannot take action on this incident.';
+        header("Location: /RMS/public/index.php?url=responder/viewIncident&code=" . urlencode($incident['tracking_code']));
+        exit;
+    }
+
+    try {
+        $incidentModel->beginTransaction();
+
+        $incidentModel->addAction([
+            'incident_id' => $incident['id'],
+            'action_taken'=> $data['action_taken'],
+            'status'      => $data['status'],
+            'acted_by'    => $_SESSION['user']['id'],
+        ]);
+
+        // Responders may update status (usually ongoing / resolved)
+        if ($data['status']) {
+            $incidentModel->updateStatus($incident['id'], $data['status']);
+        }
+
+        $incidentModel->commit();
+
+        $_SESSION['success'] = 'Action recorded successfully.';
+    } catch (Exception $e) {
+        $incidentModel->rollBack();
+        $_SESSION['error'] = 'Failed to submit action.';
+    }
+
+    header("Location: /RMS/public/index.php?url=responder/viewIncident&code=" . urlencode($incident['tracking_code']));
+    exit;
+}
+
+
+
+
+
 private function sanitizeExternalAction(array $post): array
 {
     return [
@@ -1059,56 +1047,57 @@ private function validateExternalAction(array $data): array
 }
 
 
-
 public function finalReport()
 {
     Auth::requireRole(['staff']);
 
     $code = $_GET['code'] ?? null;
-    if (!$code) {
-        die('Invalid report code.');
-    }
+    if (!$code) die('Invalid report code.');
 
     $incidentModel = new IncidentModel();
     $incident = $incidentModel->findByTrackingCode($code);
 
-    if (!$incident) {
-        die('Report not found.');
-    }
+    if (!$incident) die('Report not found.');
 
     if ($incident['status'] !== 'resolved') {
         die('Final report is only available for resolved incidents.');
     }
 
-    // Full incident with assessment/priority joined
-    $incidentFull = $incidentModel->findById($incident['id']);
-
-    // Get latest action (end = most recent)
-    $actions  = $incidentModel->getIncidentActions($incident['id']);
-    $response = !empty($actions) ? end($actions) : [];
-
-    // Involved parties for that action
+    $incidentFull    = $incidentModel->findById($incident['id']);
+    $actions         = $incidentModel->getIncidentActions($incident['id']);
+    $response        = !empty($actions) ? end($actions) : [];
     $involvedParties = !empty($response)
         ? $incidentModel->getInvolvedParties($response['id'])
         : [];
 
-    // Media
     $incidentMediaModel = new IncidentMediaModel();
     $media = $incidentMediaModel->getByIncidentId($incident['id']);
 
-    // Reporter
     $reporterModel = new ReporterModel();
     $reporter = null;
     if (!empty($incident['reporter_id'])) {
         $reporter = $reporterModel->findById((int) $incident['reporter_id']);
     }
 
+    // ✅ Fetch escalation
+    $escalation = null;
+   $stmt = $this->pdo->prepare("
+    SELECT e.responder AS responder_name, u.role AS responder_role,
+           e.description, e.escalated_at   -- ✅ was e.created_at
+    FROM escalations e
+    LEFT JOIN users u ON u.id = e.responder_id
+    WHERE e.incident_id = :id
+    LIMIT 1
+");
+    $stmt->execute([':id' => $incident['id']]);
+    $escalation = $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+
     $this->view('layouts/final-report', [
         'incident'        => $incidentFull,
-        'assessment'      => $incidentFull,  
+        'assessment'      => $incidentFull,
         'response'        => $response,
         'reporter'        => $reporter,
-        'escalation'      => [],              
+        'escalation'      => $escalation,   // ✅ was hardcoded []
         'involvedParties' => $involvedParties,
         'media'           => $media,
         'page_title'      => 'Final Report',
@@ -1122,8 +1111,71 @@ public function finalReport()
 }
 
 
+public function previewReport()
+{
+    Auth::requireRole(['staff']);
 
+    $code = $_GET['code'] ?? null;
+    if (!$code) {
+        $_SESSION['error'] = 'Missing tracking code.';
+        header("Location: /RMS/public/index.php?url=staff/dashboard");
+        exit;
+    }
 
+    $incidentModel = new IncidentModel();
+    $mediaModel    = new IncidentMediaModel();
+
+    $incident     = $incidentModel->findByTrackingCode($code);
+    $incidentFull = $incidentModel->findById($incident['id']);
+
+    if (!$incident) {
+        $_SESSION['error'] = 'Incident not found.';
+        header("Location: /RMS/public/index.php?url=staff/dashboard");
+        exit;
+    }
+
+    $media      = $mediaModel->getByIncidentId($incident['id']);
+    $actions    = $incidentModel->getIncidentActions($incident['id']);
+    $response   = !empty($actions) ? end($actions) : null;
+    $assessment = $incidentModel->findById($incident['id']);
+
+    $reporter = null;
+    if (!empty($incident['reporter_id'])) {
+        $reporterModel = new ReporterModel();
+        $reporter = $reporterModel->findById((int) $incident['reporter_id']);
+    }
+
+    // ✅ Fetch escalation
+    $escalation = null;
+   $stmt = $this->pdo->prepare("
+    SELECT e.responder AS responder_name, u.role AS responder_role,
+           e.description, e.escalated_at   -- ✅ was e.created_at
+    FROM escalations e
+    LEFT JOIN users u ON u.id = e.responder_id
+    WHERE e.incident_id = :id
+    LIMIT 1
+");
+    $stmt->execute([':id' => $incident['id']]);
+    $escalation = $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+
+    $this->view('layouts/final-report', [
+        'incident'        => $incident,
+        'assessment'      => $assessment,
+        'media'           => $media,
+        'reporter'        => $reporter,
+        'response'        => $response,
+        'escalation'      => $escalation,  // ✅ added
+        'involvedParties' => [],           // ✅ was missing entirely
+        'page_title'      => 'Preview Final Report',
+        'page_css'        => [
+            'topnavbar.css',
+            'sidebar.css',
+            'base/typography.css',
+            'components/button.css'
+        ],
+        'page_js' => ['sidebar.js']
+    ]);
+}
 
 
 }

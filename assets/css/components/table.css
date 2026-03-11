@@ -77,25 +77,35 @@
 }
 
 
+.report-table__row--resolved {
+    background-color: #d4edda; /* light green */
+    color: #155724;
+}
+
+/* Make sure resolved overrides fatal if both somehow apply */
+.report-table__row--resolved td {
+    color: #155724;
+}
 
 
 
 
 @media (max-width: 768px) {
-    /* Make table horizontally scrollable */
-    .report-table {
-        display: block;
+    /* Wrapper scrolls — never touch display on the table itself */
+    .table-scroll-wrapper {
         overflow-x: auto;
-        width: 100%;
+        -webkit-overflow-scrolling: touch;
     }
 
-    .report-table__cell,
-    .report-table__row--head {
+    .report-table {
+        min-width: 600px;    /* forces scroll when screen is narrower */
+    }
+
+    .report-table__cell {
         padding: 8px 10px;
         font-size: 13px;
     }
 
-    /* Make search/filter stack nicely */
     .table__selection,
     .table__searchbar,
     .table__actions {
@@ -108,9 +118,5 @@
     .table__search,
     .table__actions button {
         width: 100%;
-    }
-
-    .table__search {
-        flex: 1 1 100%;
     }
 }

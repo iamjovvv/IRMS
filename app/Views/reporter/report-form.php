@@ -16,28 +16,41 @@ $status = strtolower(trim($incident['status'] ?? ''));
 $currentUserId = $_SESSION['user']['id'] ?? null;
 $reporterId    = $incident['reporter_id'] ?? null;
 
+
+$actionableStatuses  = ['validated', 'ongoing'];
+$staffCanAct         = $userRole === 'staff'     && in_array($status, $actionableStatuses);
+$responderCanAct     = $userRole === 'responder' && in_array($status, ['validated', 'ongoing', 'escalated']);
+
 ?>
 
+<div class="with-sidebar">
 
+<?php require_once BASE_PATH . '/app/Views/layouts/sidebar.php'; ?>
+    
 <main class="page page--incident-form">
 
-    <?php if ($currentUserId !== $reporterId): ?>
-        <?php if ($userRole === 'staff' && $status !== 'closed'): ?>
-            <section class="action">
-                <div class="action--btn">
+
+   <?php if ($currentUserId !== $reporterId): ?>
+        <section class="action">
+            <div class="action--btn">
+                <?php if ($staffCanAct): ?>
                     <a href="/RMS/public/index.php?url=staff/actionForm&code=<?= htmlspecialchars($code) ?>"
-                       class="btn btn--primary btn--block">Take Action</a>
-                </div>
-            </section>
-        <?php endif; ?>
-        <?php if ($userRole === 'responder' && $status !== 'closed'): ?>
-            <section class="action">
-                <div class="action--btn">
-                    <a href="/RMS/public/index.php?url=responder/actionForm&code=<?= htmlspecialchars($code) ?>" 
-                       class="btn btn--secondary btn--block">Take Action</a>
-                </div>
-            </section>
-        <?php endif; ?>
+                    class="btns-primary">⚡ Take Action</a>
+                <?php endif; ?>
+                <?php if ($userRole === 'staff'): ?>
+                    <a href="/RMS/public/index.php?url=staff/previewReport&code=<?= htmlspecialchars($code) ?>"
+                    class="btns-secondary">📄 Preview Final Report</a>
+                <?php endif; ?>
+                <?php if ($responderCanAct): ?>
+                    <a href="/RMS/public/index.php?url=responder/actionForm&code=<?= htmlspecialchars($code) ?>"
+                    class="btns-primary">⚡ Take Action</a>
+                <?php endif; ?>
+                <?php if ($userRole === 'responder'): ?>
+                    <a href="/RMS/public/index.php?url=responder/previewReport&code=<?= htmlspecialchars($code) ?>"
+                    class="btns-secondary">📄 Preview Final Report</a>
+                <?php endif; ?>
+            </div>
+        </section>
     <?php endif; ?>
 
     <h3 class="page__title"><?= $isReadOnly ? 'Incident Summary' : 'Create Report' ?></h3>
@@ -98,6 +111,8 @@ $reporterId    = $incident['reporter_id'] ?? null;
                         '(CS) College of Science',
                         '(CVM) College of Veterinary Medicine',
                         '(CL) College of Law',
+                        'N/A'
+
                     ];
                     $currentDepartment = $incident['location_department'] ?? '';
                     ?>
@@ -137,7 +152,11 @@ $reporterId    = $incident['reporter_id'] ?? null;
 
                  
                 <div class="form__field">
-                    <label class="form__label">Location Preview</label>
+                    
+                    <?php if (!$isReadOnly): ?>
+                        <label class="form__label">Location Preview</label>
+                    <?php endif; ?>
+
                     <div id="map" style="height: 250px; width: 100%; border-radius: 8px; border: 1px solid #ddd;"></div>
                     <small style="color: #666">📍 Based on your current location (if permitted)</small>
                 </div>  
@@ -187,6 +206,16 @@ $reporterId    = $incident['reporter_id'] ?? null;
                 require BASE_PATH . '/app/Views/layouts/media-uploader.php';
                 ?>
 
+                
+    <!-- Lightbox for enlarging images/videos -->
+   
+    <div id="lightbox" class="lightbox">
+        <span class="lightbox__close">&times;</span>
+        <img id="lightbox-img" class="lightbox__media" src="" alt="Preview">
+        <video id="lightbox-video" class="lightbox__media" controls style="display:none;"></video>
+    </div>
+   
+
                 <!-- Type -->
                 <div class="form__field">
                     <label class="form__label">Type of Incident</label>
@@ -219,16 +248,12 @@ $reporterId    = $incident['reporter_id'] ?? null;
             <?php endif; ?>
 
         </form>
+        
     </section>
 
-    <!-- Lightbox for enlarging images/videos -->
-    <?php if (!$isReadOnly): ?>
-        <div id="lightbox" class="lightbox">
-            <span class="lightbox__close">&times;</span>
-            <img id="lightbox-img" class="lightbox__media" src="" alt="Preview">
-            <video id="lightbox-video" class="lightbox__media" controls style="display:none;"></video>
-        </div>
-    <?php endif ?>
+
+<a href="javascript:history.back()" class="btn btn--ghost">← Back</a>
+
 
 
 
@@ -445,6 +470,47 @@ $reporterId    = $incident['reporter_id'] ?? null;
             }
 });
 
+
+function openLightbox(el) {
+    const lightbox      = document.getElementById("lightbox");
+    const lightboxImg   = document.getElementById("lightbox-img");
+    const lightboxVideo = document.getElementById("lightbox-video");
+
+    if (el.tagName === "IMG") {
+        lightboxImg.src             = el.src;
+        lightboxImg.style.display   = "block";
+        lightboxVideo.style.display = "none";
+    } else {
+        lightboxVideo.src           = el.src;
+        lightboxVideo.style.display = "block";
+        lightboxImg.style.display   = "none";
+    }
+
+    lightbox.style.display = "flex";
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    const lightbox      = document.getElementById("lightbox");
+    const lightboxVideo = document.getElementById("lightbox-video");
+
+    document.querySelector(".lightbox__close")?.addEventListener("click", () => {
+        lightbox.style.display = "none";
+        lightboxVideo.pause();
+        lightboxVideo.src = "";
+    });
+
+    lightbox?.addEventListener("click", (e) => {
+        if (e.target === lightbox) {
+            lightbox.style.display = "none";
+            lightboxVideo.pause();
+            lightboxVideo.src = "";
+        }
+    });
+});
+
+
     </script>
 
 </main>
+
+</div>

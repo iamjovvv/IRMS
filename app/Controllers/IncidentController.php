@@ -12,57 +12,50 @@ class IncidentController extends BaseController
 {
 
 
-    public function track()
-    {
-        // show form(get)
+ public function track()
+{
+    // Define once, reuse everywhere
+    $viewData = [
+        'page_title' => 'Track Status',
+        'page_css'   => [
+            'topnavbar.css',
+            'base/typography.css',
+            'components/button.css',
+            'components/form.css',
+            'layouts/form-layout.css'
+        ]
+    ];
 
-        if ($_SERVER['REQUEST_METHOD'] === 'GET'){
-            
-            $this->view('reporter/track-status', [
-                'page_title' => 'Track Status',
-                'page_css'   => [
-                    'topnavbar.css',
-                    'base/typography.css',
-                    'components/button.css',
-                    'components/form.css',
-                    'layouts/form-layout.css'
-
-                ]
-
-            ]);
-            return;
-        }
-
-
-        // handle form submission(post)
-
-        $code = trim($_POST['tracking_code'] ?? '');
-
-        if($code === ''){
-            $this->view('reporter/track-status', [
-                'error' => 'Tracking code is required.'
-            ]);
-            return;
-        }
-
-            $model = new IncidentModel();
-            $incident = $model->findByTrackingCode($code);
-
-           if(!$incident) {
-            $this->view('reporter/track-status', [
-                'error' => 'No incident found for this tracking.'
-            ]);
-            return;
-           }
-
-        //    success->redirect to summary page
-
-    //    header('Location: /RMS/public/index.php?url=incident/summary&code=' . urlencode($code));
-     header('Location: /RMS/public/index.php?url=incident/summary&code=' . $code);
-    exit;
-
-      
+    // Show form (GET)
+    if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+        $this->view('reporter/track-status', $viewData);
+        return;
     }
+
+    // Handle form submission (POST)
+    $code = trim($_POST['tracking_code'] ?? '');
+
+    if ($code === '') {
+        $this->view('reporter/track-status', array_merge($viewData, [
+            'error' => 'Tracking code is required.'
+        ]));
+        return;
+    }
+
+    $model    = new IncidentModel();
+    $incident = $model->findByTrackingCode($code);
+
+    if (!$incident) {
+        $this->view('reporter/track-status', array_merge($viewData, [
+            'error' => 'No incident found for this tracking code.'
+        ]));
+        return;
+    }
+
+    // Success
+    header('Location: /RMS/public/index.php?url=incident/summary&code=' . urlencode($code));
+    exit;
+}
 
 
     

@@ -209,8 +209,70 @@ class IncidentModel extends BaseModel
     protected $table = 'incidents';
     
 
+    // public function getNewReports(array $filters = []): array
+    // {
+    //     $sql = "
+    //         SELECT id, 
+    //             tracking_code, 
+    //             subject, 
+    //             category, 
+    //             incident_type, 
+    //             status, 
+    //             created_at
+    //         FROM incidents
+    //         WHERE status = 'new'
+    //     ";
+    //     $params = [];
+
+        
+    //     if (!empty($filters['category'])) {
+    //         $sql .= " AND category = :category";
+    //         $params['category'] = $filters['category'];
+    //     }
+
+        
+        
+    //     if (!empty($filters['status'])) {
+    //         $sql .= " AND status = :status";
+    //         $params['status'] = $filters['status'];
+    //     }
+
+    //     // Fatal incidents first
+    //     $sql .= "
+    //         ORDER BY CASE WHEN incident_type = 'fatal' THEN 1 ELSE 2 END, created_at DESC
+    //     ";
+
+    //     $stmt = $this->pdo->prepare($sql);
+    //     $stmt->execute($params);
+
+    //     return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    // }
+
+
+
     public function getNewReports(array $filters = []): array
-    {
+{
+    $params = [];
+    $status = $filters['status'] ?? 'new';           // ← defaults to 'new' for staff
+
+    if (!empty($filters['responder_id'])) {
+        $sql = "
+            SELECT i.id, 
+                i.tracking_code, 
+                i.subject, 
+                i.category, 
+                i.incident_type, 
+                i.status, 
+                i.created_at
+            FROM incidents i
+            INNER JOIN escalations e 
+                ON e.incident_id = i.id 
+                AND e.responder_id = :responder_id
+            WHERE i.status = :status
+        ";
+        $params[':responder_id'] = $filters['responder_id'];
+        $params[':status']       = $status;
+    } else {
         $sql = "
             SELECT id, 
                 tracking_code, 
@@ -220,35 +282,25 @@ class IncidentModel extends BaseModel
                 status, 
                 created_at
             FROM incidents
-            WHERE status = 'new'
+            WHERE status = :status
         ";
-        $params = [];
-
-        
-        if (!empty($filters['category'])) {
-            $sql .= " AND category = :category";
-            $params['category'] = $filters['category'];
-        }
-
-        
-        
-        if (!empty($filters['status'])) {
-            $sql .= " AND status = :status";
-            $params['status'] = $filters['status'];
-        }
-
-        // Fatal incidents first
-        $sql .= "
-            ORDER BY CASE WHEN incident_type = 'fatal' THEN 1 ELSE 2 END, created_at DESC
-        ";
-
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute($params);
-
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $params[':status'] = $status;
     }
 
+    if (!empty($filters['category'])) {
+        $alias = !empty($filters['responder_id']) ? "i." : "";
+        $sql  .= " AND {$alias}category = :category";
+        $params[':category'] = $filters['category'];
+    }
 
+    $alias = !empty($filters['responder_id']) ? "i." : "";
+    $sql  .= " ORDER BY CASE WHEN {$alias}incident_type = 'fatal' THEN 1 ELSE 2 END, {$alias}created_at DESC";
+
+    $stmt = $this->pdo->prepare($sql);
+    $stmt->execute($params);
+
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
 
 
 
@@ -491,27 +543,63 @@ public function rollBack(): void
 
 
 
-   public function getIncidentActions(int $incidentId): array
-{
-    $stmt = $this->pdo->prepare("
-        SELECT a.id, a.responder_id, u.username AS responder_name,
-               a.action_taken, a.resolution_date, a.resolution_time,
-               a.status_update, a.investigation_findings, a.resolution_disposition,
-               a.created_at,
-               a.report_officer_first, a.report_officer_middle, a.report_officer_last,
-                a.report_officer_position,
-                a.signatory_first, a.signatory_middle, a.signatory_last,
-                a.signatory_position
+//    public function getIncidentActions(int $incidentId): array
+// {
+//     $stmt = $this->pdo->prepare("
+//         SELECT a.id, a.responder_id, u.username AS responder_name,
+//                a.action_taken, a.resolution_date, a.resolution_time,
+//                a.status_update, a.investigation_findings, a.resolution_disposition,
+//                a.created_at,
+//                a.report_officer_first, a.report_officer_middle, a.report_officer_last,
+//                 a.report_officer_position,
+//                 a.signatory_first, a.signatory_middle, a.signatory_last,
+//                 a.signatory_position
                
-        FROM incident_actions a
-        JOIN users u ON a.responder_id = u.id
-        WHERE a.incident_id = :incident_id
-        ORDER BY a.created_at ASC
-    ");
+//         FROM incident_actions a
+//         JOIN users u ON a.responder_id = u.id
+//         WHERE a.incident_id = :incident_id
+//         ORDER BY a.created_at ASC
+//     ");
+//     $stmt->execute([':incident_id' => $incidentId]);
+//     $actions = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+//     // Attach involved parties to each action
+//     $partyStmt = $this->pdo->prepare("
+//         SELECT owner_of_property AS owner, affected_area AS area, description
+//         FROM incident_involved_parties
+//         WHERE incident_action_id = :action_id
+//     ");
+
+//     foreach ($actions as &$action) {
+//         $partyStmt->execute([':action_id' => $action['id']]);
+//         $action['involved_parties'] = $partyStmt->fetchAll(PDO::FETCH_ASSOC);
+//     }
+
+//     return $actions;
+// }
+
+
+public function getIncidentActions(int $incidentId): array
+{
+   $stmt = $this->pdo->prepare("
+    SELECT a.id, a.acted_by,
+           u.username AS actor_username,
+           u.role     AS actor_role,
+           a.action_taken, a.resolution_date, a.resolution_time,
+           a.status_update, a.investigation_findings, a.resolution_disposition,
+           a.created_at,
+           a.report_officer_first, a.report_officer_middle, a.report_officer_last,
+           a.report_officer_position,
+           a.signatory_first, a.signatory_middle, a.signatory_last,
+           a.signatory_position
+    FROM incident_actions a
+    LEFT JOIN users u ON u.id = a.acted_by
+    WHERE a.incident_id = :incident_id
+    ORDER BY a.created_at ASC
+");
     $stmt->execute([':incident_id' => $incidentId]);
     $actions = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // Attach involved parties to each action
     $partyStmt = $this->pdo->prepare("
         SELECT owner_of_property AS owner, affected_area AS area, description
         FROM incident_involved_parties

@@ -60,16 +60,18 @@ return
             'link'  => '/RMS/public/index.php?url=admin/accountsMgmt&role=staff'
         ]
 
-     ],
-      'responder' =>
-     [
-        [
-            'label' => 'Dashboard',
-            'icon'  => 'fa-solid fa-file',
-            'link'  => '/RMS/public/index.php?url=responder/dashboard'
-        ],
-
      ]
+     
+    //  ,
+    //   'responder' =>
+    //  [
+    //     [
+    //         'label' => 'Dashboard',
+    //         'icon'  => 'fa-solid fa-file',
+    //         'link'  => '/RMS/public/index.php?url=responder/dashboard'
+    //     ],
+
+    //  ]
      
 
 

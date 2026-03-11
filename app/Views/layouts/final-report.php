@@ -48,6 +48,8 @@ body {
     gap: 10px;
 }
 
+
+
 .btns-primary,
 .btns-secondary {
     display: inline-flex;
@@ -280,11 +282,7 @@ tbody tr:nth-child(even) { background: #f5f6fa; }
     width: 220px;
 }
 
-.signature-line-bar {
-    border-top: 1px solid #333;
-    margin-top: 44px;
-    margin-bottom: 5px;
-}
+
 
 .sig-name  { font-size: 13px; font-weight: bold; color: #111; }
 .sig-title { font-size: 11px; color: #666; }
@@ -327,7 +325,7 @@ tbody tr:nth-child(even) { background: #f5f6fa; }
 
     @page {
         size: A4 portrait;
-        margin: 0;
+        margin: 5mm;
     }
 
     table { page-break-inside: avoid; }
@@ -339,11 +337,20 @@ tbody tr:nth-child(even) { background: #f5f6fa; }
 }
 </style>
 
+<a href="javascript:history.back()" class="btns btn--ghost">← Back</a>
+
+
 <!-- Buttons -->
+<?php $canDownload = $canDownload ?? true; ?>
+<?php if ($canDownload): ?>
 <div class="no-print">
     <button class="btns-primary"  onclick="window.print()">🖨 Print Report</button>
     <button class="btns-secondary" onclick="downloadReport()">⬇ Download PDF</button>
 </div>
+<?php endif; ?>
+
+
+
 
 <main class="page">
     <div class="report-document">
@@ -483,7 +490,20 @@ tbody tr:nth-child(even) { background: #f5f6fa; }
             </thead>
             <tbody>
                 <tr>
-                    <td><?= e($response['organization_name'] ?? 'N/A') ?></td>
+                    <td>
+                <?php
+                $assignedOfficer = $response['organization_name'] ?? '';
+                if (empty($assignedOfficer)) {
+                    $assignedOfficer = fullName(
+                        $response['report_officer_first']  ?? '',
+                        $response['report_officer_middle'] ?? '',
+                        $response['report_officer_last']   ?? ''
+                    );
+                }
+                echo e($assignedOfficer ?: 'N/A');
+                ?>
+            </td>
+
                     <td><?= e($response['action_taken'] ?? 'N/A') ?></td>
                     <td><?= e($response['resolution_date'] ?? 'N/A') ?></td>
                     <td><?= e($response['resolution_time'] ?? 'N/A') ?></td>
@@ -521,15 +541,44 @@ tbody tr:nth-child(even) { background: #f5f6fa; }
         <p class="paragraph">
            <?= e($response['investigation_findings'] ?? 'No investigation remarks recorded.') ?>
         </p>
+
+        <?php if (strtolower($incident['status'] ?? '') === 'resolved'): ?>
         <p class="paragraph">
             Based on the findings and actions undertaken, the incident has been officially resolved and closed as of <strong><?= e($response['resolution_date'] ?? $today) ?></strong>.
         </p>
+        <?php endif; ?>
 
         <!-- ===== RESOLUTION ===== -->
         <div class="section-title">Resolution and Disposition</div>
         <p class="paragraph">
            <?= e($response['resolution_disposition'] ?? 'No disposition recorded.') ?>
         </p>
+
+        <!-- ===== ESCALATION (if fatal/forwarded) ===== -->
+        <?php if (!empty($escalation)): ?>
+        <div class="section-title">External Responder Assignment</div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Forwarded To</th>
+                    <th>Role</th>
+                    <th>Notes</th>
+                    <th>Date Forwarded</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><?= e($escalation['responder_name'] ?? 'N/A') ?></td>
+                    <td><?= e(ucfirst($escalation['responder_role'] ?? 'External Responder')) ?></td>
+                    <td><?= e($escalation['description'] ?? '—') ?></td>
+                    <td><?= !empty($escalation['escalated_at'])
+                            ? date('F d, Y h:i A', strtotime($escalation['escalated_at']))
+                            : '—' ?></td>
+                </tr>
+            </tbody>
+        </table>
+        <?php endif; ?>
+
 
         <!-- ===== SIGNATURES ===== -->
          <?php
@@ -586,11 +635,14 @@ tbody tr:nth-child(even) { background: #f5f6fa; }
         <footer class="report-footer">
             <div>Tracking Code: <?= e($incident['tracking_code']) ?></div>
             <div>Generated on <?= $today ?></div>
-            <div>Page <span class="page-number"></span></div>
+            <!-- <div>Page <span class="page-number"></span></div> -->
         </footer>
 
     </div>
+    
 </main>
+
+
 
 <!-- PDF Libraries -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -644,4 +696,10 @@ async function downloadReport() {
 }
 </script>
 
+
+
 </div>
+
+
+
+

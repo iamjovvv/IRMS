@@ -21,7 +21,19 @@ $disabled    = $isReadOnly ? 'disabled' : '';
         <div class="status-current">
             <p>
                 <strong>Current Status:</strong>
-                <span class="status-badge status--review">
+                <?php
+                $statusClass = match($incident['status']) {
+                    'new'         => 'status--new',
+                    'validated'   => 'status--validated',
+                    'invalidated' => 'status--invalidated',
+                    'ongoing'     => 'status--ongoing',
+                    'escalated'   => 'status--escalated',
+                    'resolved'    => 'status--resolved',
+                    default       => 'status--new'
+                };
+                ?>
+
+                <span class="status-badge <?= $statusClass ?>">
                     <?= htmlspecialchars($incident['status']) ?>
                 </span>
             </p>

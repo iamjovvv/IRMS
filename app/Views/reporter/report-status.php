@@ -1,86 +1,146 @@
 <?php
-// Ensure $latestAction is always defined
-$latestAction = $latestAction ?? [];
-
-// Safely fetch fields with defaults
-$actionDate      = $latestAction['action_date'] ?? 'N/A';
-$trackingCode    = $incident['tracking_code'] ?? 'N/A';
-$incidentStatus  = $incident['status'] ?? 'Unknown';
-$incidentDate    = $incident['created_at'] ?? 'N/A';
-$priority        = $assessment['priority'] ?? 'N/A';
-$validity        = $assessment['validity'] ?? 'N/A';
-$remarks         = $assessment['remarks'] ?? 'N/A';
+$statusClass = match ($incident['status']) {
+    'pending'     => 'card__status--pending',
+    'validated'   => 'card__status--validated',
+    'ongoing'     => 'card__status--ongoing',
+    'resolved'    => 'card__status--resolved',
+    'invalidated' => 'card__status--invalid',
+    default       => 'card__status--pending'
+};
 ?>
 
-<main class="page page-report-status">
+<main class="page page--gray">
+    <header class="page__header">
+        <h1 class="page__title">Report Status</h1>
+    </header>
 
-    <section class="form-wrapper">
+    <section class="card" style="max-width:680px; margin: 2rem auto; padding: 2rem;">
 
-        <form class="form form-report-status">
+        <!-- Current Status -->
+        <div class="status-row">
+            <strong>Current Status:</strong>
+            <span class="card__status <?= $statusClass ?>">
+                <?= ucfirst($incident['status']) ?>
+            </span>
+        </div>
 
-            <h2 class="form__title">Report Status</h2>
+        <div class="status-row">
+            <strong>Submitted Date:</strong>
+            <?= !empty($incident['created_at'])
+                ? date('F d, Y', strtotime($incident['created_at']))
+                : '—' ?>
+        </div>
 
-            <div class="form__row form__row--two">
+        <div class="status-row">
+            <strong>Submitted Time:</strong>
+            <?= !empty($incident['created_at'])
+                ? date('h:i A', strtotime($incident['created_at']))
+                : '—' ?>
+        </div>
 
-                <div class="form__field">
-                    <label class="form__label">Current Status</label>
-                    <input 
-                        type="text"
-                        class="form__input"
-                        value="<?= htmlspecialchars(ucfirst($incidentStatus)) ?>"
-                        readonly>
-                </div>
+        <hr style="margin: 1.5rem 0;">
 
-                <div class="form__field">
-                        <label class="form__label">Last Updated Date & Time</label>
-                        <input
-                        type="text"
-                        class="form__input"
-                        value="<?= !empty($latestAction['created_at'])
-                        ? date('M d, Y h:i A', strtotime($latestAction['created_at']))
-                        : date('M d, Y h:i A', strtotime($incidentDate))
-                        ?>"
-                        readonly>
-                </div>
+        <h3>Response &amp; Action Taken</h3>
 
-            </div>
+        <?php if (!empty($escalation)): ?>
+        <hr style="margin: 1.5rem 0;">
 
-            <div class="form__field">
-                <label class="form__label">Assigned Office/ Personnel</label>
-                <input
-                    type="text"
-                    class="form__input"
-                    value="<?= !empty($latestAction['role']) && !empty($latestAction['username'])
-                        ? ucfirst($latestAction['role']) . ' - ' . $latestAction['username']
-                        : 'Unassigned'
-                    ?>"
-                    readonly>
-            </div>
+        <h3>⚠️ Fatal Incident — External Responder Assigned</h3>
 
-        
-           
+        <div class="status-row">
+            <strong>Forwarded To:</strong>
+            <span><?= htmlspecialchars($escalation['responder_name']) ?></span>
+        </div>
 
+        <div class="status-row">
+            <strong>Responder Role:</strong>
+            <span><?= htmlspecialchars(ucfirst($escalation['responder_role'] ?? 'External Responder')) ?></span>
+        </div>
+
+        <div class="status-row">
+            <strong>Forwarded On:</strong>
+            <span>
+                <?= !empty($escalation['escalated_at'])
+                    ? date('F d, Y h:i A', strtotime($escalation['escalated_at']))
+                    : '—' ?>
+            </span>
+        </div>
+
+        <?php if (!empty($escalation['description'])): ?>
+        <div class="status-row">
+            <strong>Notes:</strong>
+            <span><?= nl2br(htmlspecialchars($escalation['description'])) ?></span>
+        </div>
+        <?php endif; ?>
+
+        <?php endif; ?>
 
 
-<?php
-if ($incidentStatus === 'invalidated' && !empty($assessment['remarks'])) {
-    echo $assessment['remarks'];
-} elseif (!empty($latestAction['action_taken'])) {
-    echo $latestAction['action_taken'];
-} else {
-    echo 'No remarks available.';
-}
-?>
-                </textarea>
+        <div class="status-row">
+            <strong>Assigned Officer / Personnel:</strong>
+            <?php
+            $officerName = trim(
+                ($response['report_officer_first']  ?? '') . ' ' .
+                ($response['report_officer_middle'] ?? '') . ' ' .
+                ($response['report_officer_last']   ?? '')
+            );
+            echo !empty($officerName) ? htmlspecialchars($officerName) : '—';
+            ?>
+        </div>
 
-<?php if (in_array($incidentStatus, ['invalidated', 'pending'])): ?>
-    <button type="submit" class="remarks-send__btn">Submit</button>
-<?php endif; ?>
+        <div class="status-row">
+            <strong>Description of Scene / Remarks:</strong>
+            <?= !empty($response['action_taken'])
+                ? nl2br(htmlspecialchars($response['action_taken']))
+                : '—' ?>
+        </div>
 
-            </div>
+        <div class="status-row">
+            <strong>Investigation Findings:</strong>
+            <?= !empty($response['investigation_findings'])
+                ? nl2br(htmlspecialchars($response['investigation_findings']))
+                : '—' ?>
+        </div>
 
-        </form>
+        <div class="status-row">
+            <strong>Resolution &amp; Disposition:</strong>
+            <?= !empty($response['resolution_disposition'])
+                ? nl2br(htmlspecialchars($response['resolution_disposition']))
+                : '—' ?>
+        </div>
+
+        <div class="status-row">
+            <strong>Resolution Date:</strong>
+            <?= !empty($response['resolution_date'])
+                ? date('F d, Y', strtotime($response['resolution_date']))
+                : '—' ?>
+        </div>
+
+        <div class="status-row">
+            <strong>Resolution Time:</strong>
+            <?= !empty($response['resolution_time'])
+                ? date('h:i A', strtotime($response['resolution_time']))
+                : '—' ?>
+        </div>
 
     </section>
 
+    <a href="javascript:history.back()" class="btn btn--ghost">← Back</a>
+
 </main>
+
+
+
+<style>
+.status-row {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 0.8rem;
+    font-size: 0.95rem;
+    align-items: flex-start;
+}
+.status-row strong {
+    min-width: 220px;
+    color: #444;
+}
+</style>

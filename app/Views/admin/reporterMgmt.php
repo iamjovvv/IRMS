@@ -60,8 +60,8 @@
             </div>
 
 
-           
-                <table class="report-table">
+           <div class="table-scroll-wrapper">
+             <table class="report-table">
 
                     <thead>
                         <tr class="report-table__row report-table__row--head">
@@ -98,6 +98,8 @@
                     </tbody>
 
                 </table>
+           </div>
+               
 
         </div>
 
@@ -108,7 +110,7 @@
 
 
 
-
+<!-- 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -141,12 +143,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
 });
                                 
-</script>
+</script> -->
 
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    const exportBtn = document.querySelector('.btn__action--export');
+    const exportBtn = document.querySelector('.btns-primary');
 
     exportBtn.addEventListener('click', () => {
         const table = document.querySelector('.report-table');

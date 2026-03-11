@@ -1,11 +1,10 @@
 
 
 
-<div class="with-sidebar">
     
     <?php $_SESSION['role']= 'external responder'; ?>
 
-    <?php require BASE_PATH . '/app/Views/layouts/sidebar.php'; ?>
+    
 
         <main class="page page--gray page--summary">
 
@@ -34,30 +33,40 @@
 
             <section class="grid grid--summary">
 
+                <a class="card card--action" href="/RMS/public/index.php?url=responder/reportsEscalated">
+                    <i class="card__icon fa-regular fa-file"></i>
+                    <p class="card__description">New Incidents</p>
+                </a>
 
-        <a class="card card--action" href="/RMS/public/index.php?url=responder/assignedIncidents">
-            <i class="card__icon fa-regular fa-file"></i>
-            <p class="card__description">Assigned Incidents</p>
-        </a>
+                <!-- <a class="card card--action" href="/RMS/public/index.php?url=responder/assignedIncidents">
+                    <i class="card__icon fa-regular fa-file"></i>
+                    <p class="card__description">All Incidents</p>
+                </a> -->
 
 
-        <a class="card card--action" href="/RMS/public/index.php?url=responder/assignedIncidents&status=ongoing">
-            <i class="card__icon fa-solid fa-layer-group"></i>
-          
-                <p class="card__description">On Progress</p>
-          
-        </a>
+                <!-- <a class="card card--action" href="/RMS/public/index.php?url=responder/assignedIncidents&status=ongoing">
+                    <i class="card__icon fa-solid fa-layer-group"></i>
+                
+                        <p class="card__description">On Progress</p>
+                
+                </a> -->
 
-        <a class="card card--action" href="/RMS/public/index.php?url=responder/assignedIncidents&status=resolved">
-            <i class="card__icon fa-solid fa-user"></i>
-           
-                <p class="card__description">Resolved</p>
-           
-        </a>
+                 <a class="card card--action" href="/RMS/public/index.php?url=responder/reportsOngoing">
+                    <i class="card__icon fa-solid fa-layer-group"></i>
+                
+                        <p class="card__description">On Progress</p>
+                
+                </a>
+
+                <a class="card card--action" href="/RMS/public/index.php?url=responder/reportsResolved">
+                    <i class="card__icon fa-solid fa-user"></i>
+                
+                        <p class="card__description">Resolved</p>
+                
+                </a>
                
 
                 
             </section>
             
         </main>
-</div>

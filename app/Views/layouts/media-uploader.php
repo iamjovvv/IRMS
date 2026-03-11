@@ -92,13 +92,6 @@ $media = $media ?? [];
     <?php endif; ?>
 </div>
 
-<?php if ($isReadOnly && !empty($media)): ?>
-<!-- Lightbox -->
-<div id="lightbox" class="lightbox" style="display:none;">
-    <span class="lightbox__close">&times;</span>
-    <img id="lightbox-img" class="lightbox__media" src="" alt="Preview">
-    <video id="lightbox-video" class="lightbox__media" controls style="display:none;"></video>
-</div>
-<?php endif; ?>
+
 
 

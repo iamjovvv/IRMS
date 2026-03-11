@@ -22,6 +22,8 @@ require_once BASE_PATH . '/app/Models/IncidentModel.php';
 
 require_once BASE_PATH . '/app/Models/LogInModel.php';
 
+require_once BASE_PATH . '/app/Models/NotificationModel.php';
+
 require_once BASE_PATH . '/app/Models/AdminModel.php';
 
 require_once BASE_PATH . '/app/Models/ReporterModel.php';
@@ -32,12 +34,16 @@ require_once BASE_PATH . '/app/Models/IncidentMediaModel.php';
 
 require_once BASE_PATH . '/app/Models/ResponderModel.php';
 
+require_once BASE_PATH . '/app/Models/StaffModel.php';
+
 require_once BASE_PATH . '/app/core/IncidentPolicy.php';
 
 
 
 
 
+
+require_once BASE_PATH . '/app/Controllers/NotificationController.php';
 
 require_once BASE_PATH . '/app/Controllers/PublicController.php';
 
@@ -97,6 +103,10 @@ switch($url)
     case 'incident/summaryReport':
         (new IncidentController)->summary();
         break;
+
+    case 'staff/previewReport':
+    (new StaffController)->previewReport();
+    break;
 
 
 
@@ -295,6 +305,13 @@ case 'reporter/escalateConfirm':
 
 
 
+    case 'notifications/markRead':
+    (new NotificationController)->markRead();
+    break;
+
+    case 'notifications/markAllRead':
+    (new NotificationController)->markAllRead();
+    break;
 
 
 
@@ -388,8 +405,14 @@ case 'reporter/escalateConfirm':
     case 'responder/dashboard':
         (new ResponderController)->responderDashboard();
         break;
+    // case 'responder/newReports':
+    //     (new ResponderController)->newReports();
+    //     break;
     case 'responder/actionForm':
         (new ResponderController)->actionForm();
+        break;
+    case 'responder/previewReport':
+        (new ResponderController)->previewReport();
         break;
     case 'responder/assignedIncidents':
         (new ResponderController($pdo))->assignedIncidents();
@@ -397,6 +420,16 @@ case 'reporter/escalateConfirm':
 
     case 'responder/viewAssigned':
         (new ResponderController)->viewAssigned();
+        break;
+
+    case 'responder/reportsEscalated':
+        (new ResponderController)->reportsEscalated();
+        break;
+    case 'responder/reportsOngoing':
+        (new ResponderController)->reportsOngoing();
+        break;
+    case 'responder/reportsResolved':
+        (new ResponderController)->reportsResolved();
         break;
 
     case 'responder/report-form':
@@ -431,7 +464,10 @@ case 'reporter/escalateConfirm':
     default:
         http_response_code(404);
         echo '404 - Page not found';
+
+
 }
+
 
 
 

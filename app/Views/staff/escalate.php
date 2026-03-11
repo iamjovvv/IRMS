@@ -29,6 +29,8 @@ if (!$incidentId) {
 
              <input type="hidden" name="tracking_code" value="<?= htmlspecialchars($incident['tracking_code']) ?>">
 
+             <input type="hidden" name="incident_id" value="<?= $incidentId ?>">
+
 
                 <h2 class="form__title">Incident Escalation</h2>
                 

@@ -20,11 +20,21 @@ class IncidentPolicy
     // }
 
 
-     public static function staffCanTakeAction(array $incident, array $user): bool
+    
+
+
+    //  public static function staffCanTakeAction(array $incident, array $user): bool
+    // {
+    //     return $user['role'] === 'staff'
+    //         && strtolower($incident['status']) === 'validated';
+    // }
+
+
+        public static function staffCanTakeAction(array $incident, array $user): bool
     {
-        return $user['role'] === 'staff'
-            && strtolower($incident['status']) === 'validated';
+        return in_array($incident['status'], ['validated', 'ongoing'], true);
     }
+
 
     public static function responderCanTakeAction(array $incident, array $user): bool
     {

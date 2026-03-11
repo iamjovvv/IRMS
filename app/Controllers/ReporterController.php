@@ -14,6 +14,14 @@
 
 class ReporterController extends BaseController
 {
+
+ protected PDO $pdo;
+
+    public function __construct()
+    {
+        global $pdo;
+        $this->pdo = $pdo;
+    }
     
 
     
@@ -115,11 +123,20 @@ class ReporterController extends BaseController
         $reporterModel = new ReporterModel();
 
         if ($authMethod === 'org_id' && $userId) {
-            $existing = $reporterModel->findByUserId((int) $userId);
-            if (!$existing) {
-                die("Reporter profile not found. Please contact admin.");
-            }
+
+
+
+       $existing = $reporterModel->findByUserId((int) $userId);
+        if (!$existing) {
+            $reporterId = $reporterModel->createReporter([
+                'auth_method'   => 'org_id',
+                'user_id'       => $userId,
+                'org_id_number' => $user['org_id_number'] ?? null,
+                'phone'         => null
+            ]);
+        } else {
             $reporterId = $existing['id'];
+        }
 
         } else {
             // Phone auth — anonymous reporter
@@ -153,10 +170,32 @@ class ReporterController extends BaseController
     $incidentType = $_SESSION['incident']['incident_type'] ?? 'non-fatal';
     unset($_SESSION['incident']);
 
-    if ($incidentType === 'fatal') {
-        header('Location: /RMS/public/index.php?url=escalation/form&code=' . urlencode($trackingCode));
-        exit;
-    }
+    // ── Notify staff & admin of new report ──
+    $notifModel = new NotificationModel();
+    $isFatal    = ($incidentType === 'fatal');
+
+    $notifModel->notifyByRole('staff', [
+        'type'        => 'new_report',
+        'title'       => $isFatal ? '🚨 FATAL Incident Reported' : 'New Incident Report',
+        'message'     => "Incident [{$trackingCode}] has been submitted and requires review.",
+        'incident_id' => $incidentId,
+    ]);
+
+    $notifModel->notifyByRole('admin', [
+        'type'        => 'new_report',
+        'title'       => $isFatal ? '🚨 FATAL Incident Reported' : 'New Incident Report',
+        'message'     => "Incident [{$trackingCode}] has been submitted.",
+        'incident_id' => $incidentId,
+    ]);
+
+if ($isFatal) {
+    $_SESSION['pending_escalation'] = [
+        'incident_id'   => $incidentId,
+        'tracking_code' => $trackingCode,
+    ];
+    header('Location: /RMS/public/index.php?url=reporter/escalate&code=' . urlencode($trackingCode));
+    exit;
+}
 
     header('Location: /RMS/public/index.php?url=reporter/confirmation&code=' . urlencode($trackingCode));
     exit;
@@ -231,21 +270,6 @@ class ReporterController extends BaseController
     }
 
 
-    // public function incidentConfirmation()
-    // {
-    //     $this->view('public/incident-confirmation', [
-    //         'page_title' => 'Incident Confirmation', 
-    //         'page_css' => [
-    //             'topnavbar.css',
-    //             'components/form.css',
-    //             'components/button.css',
-    //             'pages/page.css',
-    //             'layouts/form-layout.css',
-    //             'base/typography.css'
-                
-    //         ]
-    //     ]);
-    // }
     
 
     public function saveIncident()
@@ -265,7 +289,8 @@ class ReporterController extends BaseController
             '(CNAH) College of Nursing and Allied Health Sciences',
             '(CS) College of Science',
             '(CVM) College of Veterinary Medicine',
-            '(CL) College of Law'
+            '(CL) College of Law',
+            'N/A'
             ];
 
                 if (!in_array($_POST['location_department'], $allowedDepartments, true)) {
@@ -531,54 +556,96 @@ public function statusIncident()
 }
 
 
-
 public function status()
 {
-    $incident = $this->getIncidentByCode();
+   $incident = $this->getIncidentByCode();
+    $incidentModel = new IncidentModel();
+
+    $actions  = $incidentModel->getIncidentActions($incident['id']);
+    $response = !empty($actions) ? end($actions) : null;
+
+   
+    $escalation = null;
+    if ($incident['status'] === 'escalated') {
+       $stmt = $this->pdo->prepare("
+    SELECT e.responder AS responder_name, u.role AS responder_role,
+           e.description, e.escalated_at   -- ✅ was e.created_at
+    FROM escalations e
+    LEFT JOIN users u ON u.id = e.responder_id
+    WHERE e.incident_id = :id
+    LIMIT 1
+");
+        $stmt->execute([':id' => $incident['id']]);
+        $escalation = $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+    }
+    // Get officer who acted
+    // $officer = null;
+    // if (!empty($response['responder_name'])) {
+    //     // responder_name is already joined in getIncidentActions()
+    //     $officer = ['username' => $response['responder_name']];
+    // }
+
+
+    // If escalated and no action yet, pull from escalations
+    // if ($incident['status'] === 'escalated' && empty($officer)) {
+    //     $stmt = $this->pdo->prepare("
+    //         SELECT e.responder AS username
+    //         FROM escalations e
+    //         WHERE e.incident_id = :id
+    //         LIMIT 1
+    //     ");
+    //     $stmt->execute([':id' => $incident['id']]);
+    //     $officer = $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+    // }
 
     $this->view('reporter/report-status', [
-        'incident' => $incident,
-         'page_title' => 'Report Status',
-            'page_css' => [
-                'topnavbar.css',
-                'base/typography.css',
-                'components/form.css',
-                'layouts/form-layout.css',
-                'pages/page.css'
-            ]
-
+        'incident'   => $incident,
+        'response'   => $response,
+        'escalation'=> $escalation,
+        // 'officer'    => $officer,
+        'page_title' => 'Report Status',
+        'page_css'   => [
+            'topnavbar.css',
+            'base/typography.css',
+            'components/form.css',
+            'layouts/form-layout.css',
+            'pages/page.css'
+        ]
     ]);
-    exit;
 }
-
-
 
 
 public function reportStatus()
 {
     $trackingCode = $_GET['code'] ?? null;
-    if (!$trackingCode) {
-        exit('Invalid tracking code');
-    }
+    if (!$trackingCode) exit('Invalid tracking code');
 
     $incidentModel = new IncidentModel();
     $incident = $incidentModel->findByTrackingCode($trackingCode);
+    if (!$incident) exit('Incident not found');
 
-    if (!$incident) {
-        exit('Incident not found');
+    $latestAction = $incidentModel->findIncidentSummaryByTrackingCode($trackingCode) ?? [];
+
+    // If escalated and no action yet, pull responder from escalations
+if ($incident['status'] === 'escalated' && empty($latestAction['responder_name'])) {
+    $stmt = $this->pdo->prepare("
+        SELECT e.responder AS responder_name, 'responder' AS responder_role
+        FROM escalations e
+        WHERE e.incident_id = :id
+        LIMIT 1
+    ");
+    $stmt->execute([':id' => $incident['id']]);
+    $escalation = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($escalation) {
+        $latestAction['responder_name'] = $escalation['responder_name'];
+        $latestAction['responder_role'] = $escalation['responder_role'];
     }
-
-    // SAFELY GET LATEST ACTION
-    $latestAction = $incidentModel->findIncidentSummaryByTrackingCode($trackingCode);
-
-    // fallback to empty array if no action exists
-    if (!$latestAction) {
-        $latestAction = [];
-    }
+}
 
     $assessment = $incidentModel->getAssessmentByIncidentId($incident['id']);
+    if (!$assessment) $assessment = [];
 
-    // pass variables to the view
     require __DIR__ . '/../Views/reporter/report-status.php';
 }
 
@@ -602,11 +669,17 @@ public function submitEscalation()
     /* =========================
        Validate Required Fields
     ========================= */
-    if (!$incidentId || !$trackingCode || !$externalResponderId || !$reporterId) {
-        $_SESSION['error'] = 'Incomplete escalation data.';
-        header("Location: /RMS/public/index.php?url=reporter/escalate&code={$trackingCode}");
-        exit;
-    }
+    // if (!$incidentId || !$trackingCode || !$externalResponderId || !$reporterId) {
+    //     $_SESSION['error'] = 'Incomplete escalation data.';
+    //     header("Location: /RMS/public/index.php?url=reporter/escalate&code={$trackingCode}");
+    //     exit;
+    // }
+
+    if (!$incidentId || !$trackingCode || !$externalResponderId) {
+    $_SESSION['error'] = 'Incomplete escalation data.';
+    header("Location: /RMS/public/index.php?url=reporter/escalate&code={$trackingCode}");
+    exit;
+}
 
     /* =========================
        Validate Responder
@@ -630,13 +703,17 @@ public function submitEscalation()
         exit('Incident not found.');
     }
 
-    // OPTIONAL but recommended:
-    // Prevent reporter from escalating someone else's incident
-    if ((int)$incident['reporter_id'] !== (int)$reporterId) {
+    $pendingEscalation = $_SESSION['pending_escalation'] ?? null;
+    $isAutoEscalation  = $pendingEscalation && 
+                        (int)$pendingEscalation['incident_id'] === $incidentId;
+
+    if (!$isAutoEscalation && !$reporterId) {
         http_response_code(403);
         exit('Unauthorized escalation attempt.');
     }
 
+
+    
     if ($incident['status'] === 'escalated') {
         $_SESSION['error'] = 'This incident has already been escalated.';
         header("Location: /RMS/public/index.php?url=reporter/myReports");
@@ -644,7 +721,7 @@ public function submitEscalation()
     }
 
     /* =========================
-       Insert Escalation
+    Insert Escalation
     ========================= */
     $sql = "
         INSERT INTO escalations
@@ -659,11 +736,11 @@ public function submitEscalation()
         ':responder_id'  => $responder['id'],
         ':responder'     => $responder['username'],
         ':description'   => $description,
-        ':reporter_id'   => $reporterId
+        ':reporter_id'   => $reporterId ?? null
     ]);
 
     /* =========================
-       Update Incident Status
+    Update Incident Status
     ========================= */
     $this->pdo->prepare("
         UPDATE incidents
@@ -671,13 +748,76 @@ public function submitEscalation()
         WHERE id = :id
     ")->execute([':id' => $incidentId]);
 
-    $_SESSION['success'] =
-        "Incident successfully forwarded to {$responder['username']}";
+    unset($_SESSION['pending_escalation']); // ← moved here, after both DB operations
 
-    header("Location: /RMS/public/index.php?url=reporter/myReports");
+    /* =========================
+    Send Notifications
+    ========================= */
+    $notifModel = new NotificationModel();
+
+    $notifModel->notifyUser((int)$responder['id'], [
+        'type'        => 'escalation',
+        'title'       => '🚨 Fatal Incident Assigned to You',
+        'message'     => "You have been selected as responder for fatal incident [{$trackingCode}].",
+        'incident_id' => $incidentId,
+    ]);
+
+    $notifModel->notifyByRole('staff', [
+        'type'        => 'escalation',
+        'title'       => '⚠️ Incident Escalated to External Responder',
+        'message'     => "Fatal incident [{$trackingCode}] was escalated to {$responder['username']}.",
+        'incident_id' => $incidentId,
+    ]);
+
+    $_SESSION['success'] = "Incident successfully forwarded to {$responder['username']}";
+    header("Location: /RMS/public/index.php?url=reporter/confirmation&code=" . urlencode($trackingCode));
     exit;
 }
 
+
+
+// public function escalate()
+// {
+//     if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+//         http_response_code(405);
+//         exit('Method not allowed');
+//     }
+
+//     $trackingCode = $_GET['code'] ?? null;
+//     if (!$trackingCode) {
+//         exit('Tracking code missing');
+//     }
+
+//     $incidentModel = new IncidentModel();
+//     $incident = $incidentModel->findByTrackingCode($trackingCode);
+
+//     if (!$incident) {
+//         exit('Incident not found');
+//     }
+
+//     // // (Optional security check)
+//     // if ((int)$incident['reporter_id'] !== (int)$_SESSION['user']['id']) {
+//     //     http_response_code(403);
+//     //     exit('Unauthorized access');
+//     // }
+
+//     $responders = (new UserModel())->getResponders();
+
+//     $this->view('public/incident-confirmation', [
+//         'trackingCode' => $trackingCode,
+//         'incident' => $incident,
+//         'page_title' => 'Report Escalate',
+//         'responders' => $responders,
+//         'page_css' => [
+//             'topnavbar.css',
+//             'base/typography.css',
+//             'components/button.css',
+//             'components/form.css',
+//             'layouts/form-layout.css',
+//             'pages/page.css',
+//         ]
+//     ]);
+// }
 
 
 public function escalate()
@@ -699,19 +839,14 @@ public function escalate()
         exit('Incident not found');
     }
 
-    // // (Optional security check)
-    // if ((int)$incident['reporter_id'] !== (int)$_SESSION['user']['id']) {
-    //     http_response_code(403);
-    //     exit('Unauthorized access');
-    // }
-
     $responders = (new UserModel())->getResponders();
 
-    $this->view('public/incident-confirmation', [
-        'incident' => $incident,
-        'page_title' => 'Report Escalate',
-        'responders' => $responders,
-        'page_css' => [
+    $this->view('public/escalate', [       
+        'trackingCode' => $trackingCode,
+        'incident'     => $incident,
+        'responders'   => $responders,
+        'page_title'   => 'Select Emergency Responder',
+        'page_css'     => [
             'topnavbar.css',
             'base/typography.css',
             'components/button.css',
@@ -721,7 +856,6 @@ public function escalate()
         ]
     ]);
 }
-
 
 
 

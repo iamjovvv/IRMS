@@ -141,15 +141,17 @@ public function storeUser()
             case 'staff':
                 if (empty($_POST['position']) || empty($_POST['office'])) {
                     $_SESSION['error'] = 'Staff requires Position and Office';
+                    $this->pdo->rollBack();
                     header('Location: /RMS/public/index.php?url=admin/createUser');
                     exit;
                 }
                 (new StaffModel())->create([
                     'user_id'  => $userId,
+                    'staff_id' => 'STF-' . strtoupper(substr(uniqid(), -6)), // ← auto-generate
                     'position' => $_POST['position'] ?? null,
-                    'office'   => $_POST['office'] ?? null
+                    'office'   => $_POST['office']   ?? null
                 ]);
-                break;
+            break;
 
             case 'responder':
 
@@ -340,16 +342,15 @@ public function reporterTable()
             'components/table.css',
             'base/typography.css',
             'components/button.css',
-            'pages/page.css',
-            'components/modal.css'
+            'pages/page.css'
+          
         ],
         'page_js' => ['sidebar.js']
     ]);
 }
 
 
-
-  public function editUser()
+public function editUser()
 {
     $userId = $_GET['id'] ?? null;
     if (!$userId) {
@@ -359,19 +360,26 @@ public function reporterTable()
     }
 
     $adminModel = new AdminModel();
-    $user = $adminModel->findUserById($userId); // fetch user with role-specific info
-    $role = strtolower($user['role'] ?? '');
+    $account = $adminModel->findUserById((int) $userId); 
+    $accountRole = strtolower($account['role'] ?? '');
 
-    $this->view('admin/editUserForm', [
-        'user' => $user,
-        'role' => $role,
+    if (!$account) {
+        $_SESSION['error'] = 'User not found';
+        header('Location: /RMS/public/index.php?url=admin/accountsMgmt');
+        exit;
+    }
+
+    $role = strtolower($account['role'] ?? '');
+
+    $this->view('admin/editUser', [
+        'account'    => $account,  
+        'accountRole' => $accountRole,
+        'role'       => $role,
+        'details'    => $account,
         'page_title' => 'Edit ' . ucfirst($role) . ' Account',
-        'page_css' => [
-            'topnavbar.css',
-            'sidebar.css',
-            'components/form.css',
-            'components/button.css',
-            'pages/page.css'
+        'page_css'   => [
+            'topnavbar.css', 'sidebar.css',
+            'components/form.css', 'components/button.css', 'pages/page.css', 'base/typography.css'
         ],
         'page_js' => ['sidebar.js']
     ]);
@@ -379,39 +387,16 @@ public function reporterTable()
 
 
 
-public function updateUser(int $userId, array $data): bool
-
+public function updateUser()
 {
-    $allowed = ['username', 'status', 'password_hash'];
-    $fields = [];
-
-    if (!empty($data['password'])){
-        $data['password_hash'] = password_hash($data['password'], PASSWORD_DEFAULT);
-    }
-
-    foreach ($data as $key => $value) {
-        if(in_array($key, $allowed)){
-            $fields[$key] = $value;
-        }
-    }
-
-    if(empty($fields)) return false;
-    $setPart = implode(',', array_map(fn($k) => "$k = :$k", array_keys($fields)));
-    $fields['id'] = $userId;
-
-    $stmt = $this->pdo->prepare("UPDATE users SET $setPart WHERE id = :id");
-    return $stmt->execute($fields);
-
-    
-
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
         header('Location: /RMS/public/index.php');
         exit;
     }
 
-    $userId = $_POST['user_id'] ?? null;
-    $username = $_POST['username'] ?? '';
-    $status = $_POST['status'] ?? '';
+    $userId   = (int) ($_GET['id'] ?? 0);
+    $username = trim($_POST['username'] ?? '');
+    $role     = strtolower($_POST['role'] ?? '');
 
     if (!$userId || !$username) {
         $_SESSION['error'] = 'Invalid data';
@@ -420,35 +405,64 @@ public function updateUser(int $userId, array $data): bool
     }
 
     $adminModel = new AdminModel();
-    $adminModel->updateUser($userId, ['username' => $username, 'status' => $status]);
 
-    // Update role-specific details
-    $role = strtolower($_POST['role'] ?? '');
-    switch ($role) {
-        case 'reporter':
-            (new ReporterModel())->updateByUserId($userId, [
-                'org_id_number' => $_POST['org_id_number'] ?? null,
-                'phone' => $_POST['phone'] ?? null
-            ]);
-            break;
-        case 'staff':
-            (new StaffModel())->updateByUserId($userId, [
-                'staff_id' => $_POST['staff_id'] ?? null,
-                'office' => $_POST['office'] ?? null
-            ]);
-            break;
-        case 'responder':
-            (new ResponderModel())->updateByUserId($userId, [
-                'organization_name' => $_POST['organization_name'] ?? null,
-                'contact_email' => $_POST['contact_email'] ?? null,
-                'contact_phone' => $_POST['contact_phone'] ?? null
-            ]);
-            break;
+    try {
+        $this->pdo->beginTransaction();
+
+        // Build users table update
+    $updateData = ['username' => $username];
+
+    if (!empty($_POST['status'])) {
+        $updateData['status'] = $_POST['status'];
     }
 
-    $_SESSION['success'] = 'User updated successfully';
-    header("Location: /RMS/public/index.php?url=admin/accountsMgmt&role=$role");
-    exit;
+    if (!empty($_POST['password'])) {
+        $updateData['password_hash'] = password_hash($_POST['password'], PASSWORD_DEFAULT);
+    }
+
+    $adminModel->updateUser($userId, $updateData);
+
+        // Update role-specific table
+        switch ($role) {
+            case 'reporter':
+                (new ReporterModel())->updateByUserId($userId, [
+                    'org_id_number' => $_POST['id_number'] ?? null,
+                    'phone'         => $_POST['phone']     ?? null
+                ]);
+                break;
+
+            case 'staff':
+                (new StaffModel())->updateByUserId($userId, [
+                    'staff_id' => $_POST['staff_id'] ?? null,
+                    'position' => $_POST['position'] ?? null,
+                    'office'   => $_POST['office']   ?? null
+                ]);
+                break;
+
+            case 'responder':
+                (new ResponderModel())->updateByUserId($userId, [
+                    'organization_name' => $_POST['organization_name'] ?? null,
+                    'contact_email'     => $_POST['contact_email']     ?? null,
+                    'contact_phone'     => $_POST['contact_phone']     ?? null
+                ]);
+                break;
+
+            case 'admin':
+           
+                break;
+        }
+
+        $this->pdo->commit();
+        $_SESSION['success'] = 'Account updated successfully';
+        header("Location: /RMS/public/index.php?url=admin/accountsMgmt&role={$role}");
+        exit;
+
+    } catch (Exception $e) {
+        $this->pdo->rollBack();
+        $_SESSION['error'] = 'Failed to update: ' . $e->getMessage();
+        header("Location: /RMS/public/index.php?url=admin/editUser&id={$userId}");
+        exit;
+    }
 }
 
 
@@ -486,33 +500,36 @@ public function updateUser(int $userId, array $data): bool
 
 
 
+public function totalReports()
+{
+    $adminModel  = new AdminModel();
+    $year        = (int) ($_GET['year'] ?? date('Y'));
 
-    public function totalReports(){
-        $adminModel = new AdminModel();
-        $reportStats = [
-            'total' => $adminModel->getTotalReports(),
-            'pending' => $adminModel->getReportsByCategory('pending'),
-            'resolved' => $adminModel->getReportsByCategory('resolved'),
-            'rejected' => $adminModel->getReportsByCategory('rejected'),
-            'escalated' => $adminModel->getReportsByCategory('escalated')
-        ];
+    $reportStats = [
+        'total'     => $adminModel->getTotalReports(),
+        'pending'   => $adminModel->getReportsByCategory('ongoing'),
+        'resolved'  => $adminModel->getReportsByCategory('resolved'),
+        'rejected'  => $adminModel->getReportsByCategory('rejected'),
+        'escalated' => $adminModel->getReportsByCategory('escalated'),
+    ];
 
-        $this->view('admin/totalReports', [
-            'page_title' => 'Total Reports',
-            'reportStats' => $reportStats,
-            'page_css' => [
-                'topnavbar.css',
-                'sidebar.css',
-                'pages/page.css', 
-                'base/typography.css'
-                ],
-            'page_js' => [
-                'sidebar.js',
-                '/assets/js/charts/totalReports.chart.js']
-            ]);
-
-       
-    }
+    $this->view('admin/totalReports', [
+        'page_title'    => 'Total Reports',
+        'reportStats'   => $reportStats,
+        'monthlyStats'  => $adminModel->getMonthlyReports($year), // ✅ added
+        'selectedYear'  => $year,                                  // ✅ for year switcher
+        'page_css'      => [
+            'topnavbar.css',
+            'sidebar.css',
+            'pages/page.css',
+            'base/typography.css'
+        ],
+        'page_js' => [
+            'sidebar.js',
+            '/assets/js/charts/totalReports.chart.js'
+        ]
+    ]);
+}
 
 
 
@@ -602,61 +619,65 @@ public function viewIncident()
     ]);
 }
 
-
-
 public function finalReport()
 {
     Auth::requireRole(['admin']);
 
     $code = $_GET['code'] ?? null;
-
-    if (!$code) {
-        die('Invalid report code.');
-    }
+    if (!$code) die('Invalid report code.');
 
     $incidentModel = new IncidentModel();
     $incident = $incidentModel->findByTrackingCode($code);
 
-    if (!$incident) {
-        die('Report not found.');
-    }
+    if (!$incident) die('Report not found.');
 
     if ($incident['status'] !== 'resolved') {
         die('Final report is only available for resolved incidents.');
     }
 
-    // Get full incident with assessment
-    $incidentFull = $incidentModel->findById($incident['id']);
-
-    // Get latest action
-    $actions = $incidentModel->getIncidentActions($incident['id']);
-    $response = !empty($actions) ? end($actions) : null;
-
+    $incidentFull    = $incidentModel->findById($incident['id']);
+    $actions         = $incidentModel->getIncidentActions($incident['id']);
+    $response        = !empty($actions) ? end($actions) : null;
+    $involvedParties = !empty($response)
+        ? $incidentModel->getInvolvedParties($response['id'])
+        : [];
 
     $incidentMediaModel = new IncidentMediaModel();
     $media = $incidentMediaModel->getByIncidentId($incident['id']);
 
-    // Reporter
-   $reporterModel = new ReporterModel();
-
-     $reporter = null;
-
+    $reporterModel = new ReporterModel();
+    $reporter = null;
     if (!empty($incident['reporter_id'])) {
-        $reporter = $reporterModel->findById((int)$incident['reporter_id']);
+        $reporter = $reporterModel->findById((int) $incident['reporter_id']);
     }
 
+    // ✅ Fetch escalation
+    $escalation = null;
+   $stmt = $this->pdo->prepare("
+    SELECT e.responder AS responder_name, u.role AS responder_role,
+           e.description, e.escalated_at   -- ✅ was e.created_at
+    FROM escalations e
+    LEFT JOIN users u ON u.id = e.responder_id
+    WHERE e.incident_id = :id
+    LIMIT 1
+");
+    $stmt->execute([':id' => $incident['id']]);
+    $escalation = $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+
     $this->view('layouts/final-report', [
-        'media'    => $media,
-        'incident' => $incident,
-        'assessment' => $incidentFull,
-        'reporter' => $reporter,
-        'response' => $response,
-        'page_title' => 'Final Report',
-        'page_css' => [
+        'incident'        => $incidentFull,  // ✅ was $incident (non-full)
+        'assessment'      => $incidentFull,
+        'response'        => $response,
+        'reporter'        => $reporter,
+        'escalation'      => $escalation,    // ✅ was missing entirely
+        'involvedParties' => $involvedParties, // ✅ was missing entirely
+        'media'           => $media,
+        'page_title'      => 'Final Report',
+        'page_css'        => [
             'topnavbar.css',
             'base/typography.css',
             'sidebar.css',
-           
+            'components/button.css'
         ]
     ]);
 }

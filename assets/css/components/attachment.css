@@ -306,6 +306,7 @@
     max-width: 90%;
     max-height: 90%;
     border-radius: 8px;
+    pointer-events: none;
 }
 
 .lightbox__close {
@@ -315,6 +316,7 @@
     font-size: 40px;
     color: #fff;
     cursor: pointer;
+    z-index: 10000;
 }
 
 

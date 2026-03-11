@@ -231,6 +231,17 @@ button:disabled{
 }
  */
 
+ .form__error {
+    background: #fdecea;
+    color: #c0392b;
+    border: 1px solid #f5c6cb;
+    border-radius: 6px;
+    padding: 10px 14px;
+    font-size: 14px;
+    margin-bottom: 12px;
+    text-align: center;
+}
+
 
 .form__hint{
     font-size: 11px;

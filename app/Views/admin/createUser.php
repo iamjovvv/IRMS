@@ -81,6 +81,14 @@
                         <label class="form__label">Organization Name</label>
                         <input type="text" name="organization_name" class="form__input" required>
                     </div>
+                    <div class="form__field">
+                        <label class="form__label">Contact Email</label>
+                        <input type="email" name="contact_email" class="form__input">
+                    </div>
+                    <div class="form__field">
+                        <label class="form__label">Contact Phone</label>
+                        <input type="text" name="contact_phone" class="form__input">
+                    </div>
                 </div>
 
                 <!-- Actions -->

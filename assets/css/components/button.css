@@ -1,3 +1,33 @@
+.btns-primary,
+.btns-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    font-size: 14px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s;
+    letter-spacing: 0.5px;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+    white-space: nowrap;
+    text-decoration: none;   /* ← important since these are <a> tags */
+}
+
+.btns-primary         { background: #1a237e; color: #fff; }
+.btns-primary:hover   { background: #283593; color: #fff; }
+.btns-secondary       { background: #fff; color: #1a237e; border: 1px solid #1a237e; }
+.btns-secondary:hover { background: #e8eaf6; color: #1a237e; }
+
+
+.action--btn {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: fit-content;
+}
+
 .btn, 
 .landing-btn
 {

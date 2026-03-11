@@ -46,7 +46,7 @@ $pageTitle = $page_title ?? 'Reports';
                         <th class="report-table__cell">ID</th>
                         <th class="report-table__cell">Tracking Code</th>
                         <th class="report-table__cell">Title</th>
-                        <th class="report-table__cell">Category</th>
+                        <th clzass="report-table__cell">Category</th>
                         <th class="report-table__cell">Status</th>
                         <th class="report-table__cell">Date Reported</th>
                         <th class="report-table__cell">Action</th>
@@ -72,7 +72,15 @@ $pageTitle = $page_title ?? 'Reports';
                                 $mode = in_array($incident['status'], $finalStatuses) ? 'view' : 'edit';
                             ?>
                             
-                            <tr class="report-table__row <?= $incident['incident_type'] === 'fatal' ? 'report-table__row--fatal' : '' ?>">
+                            <?php
+                                $rowClass = '';
+                                if ($incident['status'] === 'resolved') {
+                                    $rowClass = 'report-table__row--resolved';
+                                } elseif ($incident['incident_type'] === 'fatal') {
+                                    $rowClass = 'report-table__row--fatal';
+                                }
+                            ?>
+                            <tr class="report-table__row <?= $rowClass ?>">
                                 
                                 <td class="report-table__cell"><?= (int) $incident['id'] ?></td>
 
